@@ -18,20 +18,19 @@
 
 //----------------------------------------
 //define AJAX function
-function jQueryAjax(){
-    //basic jQuery ajax method
-    $.ajax("data/citypop.geojson", {
-        dataType: "json",
-        success: callback
-    });
-};
-
-//define callback function
-function callback(response, status, jqXHRobject){
-    //TASKS USING THE DATA GO HERE
-    //console.log(response);
-    $(mydiv).append('<br>GeoJSON data:<br>' + JSON.stringify(response));
-};
-
-$(document).ready(jQueryAjax);
-
+// function jQueryAjax(){
+//     //basic jQuery ajax method
+//     $.ajax("data/citypop.geojson", {
+//         dataType: "json",
+//         success: callback
+//     });
+// };
+//
+// //define callback function
+// function callback(response, status, jqXHRobject){
+//     //TASKS USING THE DATA GO HERE
+//     //console.log(response);
+//     $(mydiv).append('<br>GeoJSON data:<br>' + JSON.stringify(response));
+// };
+//
+// $(document).ready(jQueryAjax);
