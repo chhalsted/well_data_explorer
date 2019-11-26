@@ -26,7 +26,6 @@ body {
     font-size: .85em;
 }
 
-
 container-fluid {padding: 0px;}
 #divSidebar, #divMapTable, #divMap, #divTable {
   padding: 0px;
@@ -64,16 +63,16 @@ div {
   .navbar-custom .navbar-brand {font-size: 16px;}
   .navbar-custom {font-size: 14px;}
   #divSidebar {
-    height: 500px;
+    /* height: 500px; */
     padding-top: 56px;
-    border: thin solid #999;
+    /* border: thin solid #999; */
   }
   #divMap {
-    border: thin solid #999;
+    /* border: thin solid #999; */
     height: 400px;
   }
   #divTable {
-    border: thin solid #999;
+    /* border: thin solid #999; */
     height: 200px;
   }
 }
@@ -83,18 +82,54 @@ div {
   #divSidebar {height: 100vh;}
   #divSidebar, #divMapTable {padding-top: 56px;}
   #divMap {
-    border: thin solid #999;
+    /* border: thin solid #999; */
     position: absolute;
-    height: 80%;
+    height: 75%;
     width: 100%;
     margin-top: -56px;
     padding-top: 56px;
   }
   #divTable {
-    border: thin solid #999;
+    /* border: thin solid #999; */
     position: absolute;
     bottom: 0;
-    height: 20%;
+    height: 25%;
     width: 100%;
   }
 }
+
+#map {
+   height: 100%;
+   width: 100%;
+   display: inline-block;
+}
+
+.form-group {margin: 5px;}
+
+/* #example {
+  font-size: 10px;
+} */
+#containerTable {
+  padding: 0px;
+}
+/* .container{ */
+  /* max-width: 800px; */
+  /* margin: 0 auto; */
+  /* padding: 1rem; */
+  /* border: 1px solid #aaa; */
+/* } */
+#example {
+  table-layout: fixed;
+  width: 100% !important;
+  /* height: 25%; */
+}
+#example td,
+#example th{
+  width: auto !important;
+  white-space: normal;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+th { font-size: 12px; }
+td { font-size: 11px; }
