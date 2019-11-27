@@ -45,17 +45,20 @@
         <div class="form-group">
           <div id="divSelectDataLayer">
             <select id="selectDataLayer" class="form-control">
-                <option selected disabled>Select a statistic</option>
-                <option>Well Depth</option>
-    						<option>Well Yield</option>
-                <option>Overburden Thickness</option>
+                <!-- <option selected disabled>Select a statistic</option>
+                <option value="WELL_DEPTH_FT">Well Depth</option> -->
+                <option selected value="WELL_DEPTH_FT">Well Depth</option>
+    						<option value="WELL_YIELD_GPM">Well Yield</option>
+                <option value="OVERBURDEN_THICKNESS_FT">Overburden Thickness</option>
     					</select>
           </div>
         </div>
         <div class="form-group">
           <div id="divSelectDriller">
             <select id="selectDriller" class="form-control">
-                <option selected>All well drillers</option>
+                <!-- <option selected disabled>Select well driller</option>
+                <option>ALL</option> -->
+                <option selected>ALL</option>
     					</select>
           </div>
         </div>
@@ -66,12 +69,15 @@
 
         <div id="stats">
           <h5>Summary Data:</h5>
-          <p>Total Wells Reported:<br>
-          Wells Reported Current Year:<br>
-          Total Wells Mapped:<br>
-          Minimum:<br>
-          Average:<br>
-          Maximum:</p>
+          <!-- <h5>Summary Data:<span class="statsValues invisible" id="strTotalWellsUnmapped"></span></h5> -->
+          <!-- <p class="invisible" id="strTotalWellsUnmapped"></p> -->
+
+          <p>Total Wells Reported:  <span class="statsValues" id="strTotalWells"></span><br>
+          Wells Reported Current Year: <span class="statsValues" id="strTotalWellsCurrentYear"></span><br>
+          Total Wells Mapped: <span class="statsValues" id="strTotalWellsMapped"></span><br>
+          Minimum <span id="strMinimumLabel"></span>: <span class="statsValues" id="strMinimum"></span><br>
+          Average <span id="strAverageLabel"></span>: <span class="statsValues" id="strAverage"></span><br>
+          Maximum <span id="strMaximumLabel"></span>: <span class="statsValues" id="strMaximum"></span></p>
         </div>
         <div class="container-fluid">
           <div class="row col-xs-12" id="divGraph">
@@ -88,7 +94,7 @@
           </div>
           <div class="row col-xs-12" id="divTable">
             <div class="container-fluid" id="containerTable">
-            <table id="example" class="table table-striped table-bordered" style="width: 100%">
+            <table id="tableDataTable" class="table table-striped table-bordered" style="width: 100%">
                     <thead>
                         <tr>
                             <th>Name</th>

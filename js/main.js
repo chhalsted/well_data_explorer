@@ -44,20 +44,153 @@ var baseLayerEsriLabels = L.esri.basemapLayer('ImageryLabels');
     }).addTo(map);
 // }
 
+// map.on('zoomend', function(e) { console.log(map.getZoom()); });
+//
+// map.on('moveend', function() {
+//      console.log(map.getBounds());
+// });
+
+
+
+// function getDataTotalWellsMapped(driller){
+//   var where = encodeURIComponent("WELL_DRILLER_COMPANY='" + driller.replace(/'/g,"''") + "'");
+//   var uri = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=" + where + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+//   // console.log(uri);
+//   $.ajax(uri, {
+//     dataType: "json"
+//     ,success: function(response){
+//       $("#strTotalWellsMapped").text(response.properties.count);
+//       // document.getElementById("strTotalWellsMapped").innerHTML = response.properties.count;
+//       // console.log(parseInt($("#strTotalWellsUnmapped").text()) + parseInt($("#strTotalWellsMapped").text()));
+//       UpdateTotalWells();
+//     }
+//   });
+// };
+// function getDataTotalWellsUnMapped(driller){
+//   var where = encodeURIComponent("WELL_DRILLER_COMPANY='" + driller.replace(/'/g,"''") + "'");
+//   var uri = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?where=" + where + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+//   // console.log(uri);
+//   $.ajax(uri, {
+//     dataType: "json"
+//     ,success: function(response){
+//       $("#strTotalWellsUnmapped").text(response.properties.count);
+//       // console.log(parseInt($("#strTotalWellsUnmapped").text()) + parseInt($("#strTotalWellsMapped").text()));
+//       UpdateTotalWells();
+//     }
+//   });
+// };
+//
+// function UpdateTotalWells() {
+//   if ($("#strTotalWellsUnmapped").text() != '' && $("#strTotalWellsUnmapped").text() != '') {
+//     $("#strTotalWells").text(parseInt($("#strTotalWellsUnmapped").text()) + parseInt($("#strTotalWellsMapped").text()));
+//   }
+// }
+//
+// function getDataCurrentYearWells(driller) {
+//   var d = new Date();
+//   var y = d.getFullYear();
+//   var where = encodeURIComponent("WELL_DRILLER_COMPANY='" + driller.replace(/'/g,"''") + "' AND DRILL_DATE LIKE '%" + y + "%'");
+//   var uri = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?where=" + where + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+//   // console.log(uri);
+//   $.ajax(uri, {
+//     dataType: "json"
+//     ,success: function(response){
+//       $("#strTotalWellsCurrentYear").text(response.properties.count);
+//     }
+//   });
+// }
+
+function GetData(driller) {
+  if (driller == "ALL") {
+    var whereDriller = "(WELL_DRILLER_COMPANY LIKE '%' OR WELL_DRILLER_COMPANY IS NULL)";
+  } else {
+    var whereDriller = "WELL_DRILLER_COMPANY='" + driller.replace(/'/g,"''") + "'";
+  }
+  // var whereTotalWells = encodeURIComponent("WELL_DRILLER_COMPANY='" + driller.replace(/'/g,"''") + "'");
+  var whereTotalWells = encodeURIComponent(whereDriller);
+  var uriTotalWellsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=" + whereTotalWells + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+  var uriTotalWellsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?where=" + whereTotalWells + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+
+  var d = new Date();
+  var y = d.getFullYear();
+  // var whereCurrentYearWells = encodeURIComponent("WELL_DRILLER_COMPANY='" + driller.replace(/'/g,"''") + "' AND DRILL_DATE LIKE '%" + y + "%'");
+  var whereCurrentYearWells = encodeURIComponent(whereDriller + " AND DRILL_DATE LIKE '%" + y + "%'");
+  var uriCurrentYearWellsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=" + whereCurrentYearWells + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+  var uriCurrentYearWellsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?where=" + whereCurrentYearWells + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+
+  var uriSummaryStats = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?where=" + whereTotalWells + "&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22min%22%2C%0D%0A++++%22onStatisticField%22%3A+%22WELL_DEPTH_FT%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22avg%22%2C%0D%0A++++%22onStatisticField%22%3A+%22WELL_DEPTH_FT%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22max%22%2C%0D%0A++++%22onStatisticField%22%3A+%22WELL_DEPTH_FT%22%0D%0A++%7D%0D%0A%5D&f=pgeojson";
+
+  var a1 = $.ajax(uriTotalWellsMapped, {dataType: "json",success: function(response){ } }),
+      a2 = $.ajax(uriTotalWellsUnmapped, {dataType: "json",success: function(response){ } }),
+      a3 = $.ajax(uriCurrentYearWellsMapped, {dataType: "json",success: function(response){ } }),
+      a4 = $.ajax(uriCurrentYearWellsUnmapped, {dataType: "json",success: function(response){ } }),
+      a5 = $.ajax(uriSummaryStats, {dataType: "json",success: function(response){ } })
+
+  $.when(a1, a2, a3, a4, a5).done(function(r1, r2, r3, r4, r5) {
+      // Each returned resolve has the following structure:
+      // [data, textStatus, jqXHR]
+      // e.g. To access returned data, access the array at index 0
+      // console.log(r1[0]);
+      console.log(r1[0].properties.count);
+      $("#strTotalWells").text(parseInt(r1[0].properties.count) + parseInt(r2[0].properties.count));
+      // console.log(r2[0]);
+      console.log(r2[0].properties.count);
+      $("#strTotalWellsMapped").text(r2[0].properties.count + ' (' + Math.round((parseInt(r2[0].properties.count) / (parseInt(r2[0].properties.count) + parseInt(r1[0].properties.count)))*100, 0) + '%)');
+      console.log(r3[0].properties.count);
+      console.log(r4[0].properties.count);
+      $("#strTotalWellsCurrentYear").text(parseInt(r3[0].properties.count) + parseInt(r4[0].properties.count));
+      console.log(r5[0]);
+
+      $("#strMinimumLabel").text($('#selectDataLayer :selected').text());
+      $("#strMinimum").text(r5[0].features[0].properties.MIN_WELL_DEPTH_FT);
+      $("#strAverageLabel").text($('#selectDataLayer :selected').text());
+      $("#strAverage").text(Math.round(r5[0].features[0].properties.AVG_WELL_DEPTH_FT,0));
+      $("#strMaximumLabel").text($('#selectDataLayer :selected').text());
+      $("#strMaximum").text(r5[0].features[0].properties.MAX_WELL_DEPTH_FT);
+  });
+}
+
+$('#selectDriller').on('change', function () {
+	var driller = document.getElementById("selectDriller").value;
+  // getDataTotalWellsMapped(driller);
+  // getDataTotalWellsUnMapped(driller);
+  // getDataCurrentYearWells(driller);
+  // console.log(document.getElementById("selectDataLayer").value)
+  console.log($('#selectDataLayer :selected').val())
+  console.log($('#selectDataLayer :selected').text())
+  GetData(driller);
+});
+
+function loadDataTable () {
+  $('#tableDataTable').DataTable( {
+    "scrollY": "18vh",
+    "scrollCollapse": true,
+    "paging": false,
+    "autoWidth": true,
+    "bFilter": false,
+    "bInfo" : false,
+  });
+  $('#table').DataTable().columns.adjust().draw();
+}
+
+function loadWellDrillers() {
+  var uri = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=WELL_DRILLER_COMPANY+LIKE+%27%25%27&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=WELL_DRILLER_COMPANY&returnGeometry=false&featureEncoding=esriDefault&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&datumTransformation=&applyVCSProjection=false&returnIdsOnly=false&returnUniqueIdsOnly=false&returnCountOnly=false&returnExtentOnly=false&returnQueryGeometry=false&returnDistinctValues=false&cacheHint=false&orderByFields=WELL_DRILLER_COMPANY&groupByFieldsForStatistics=WELL_DRILLER_COMPANY&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22count%22%2C%0D%0A++++%22onStatisticField%22%3A+%22WELL_DRILLER_COMPANY%22%0D%0A++%7D%0D%0A%5D&having=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&returnExceededLimitFeatures=true&quantizationParameters=&sqlFormat=none&f=pgeojson&token=";
+  $.ajax(uri, {
+    dataType: "json"
+    ,success: function(response){
+      var arrayDrillers = response.features;
+      var options = $('#selectDriller').prop('options');
+      for (var i=0; i < arrayDrillers.length; i++) {
+        var option = (arrayDrillers[i].properties.WELL_DRILLER_COMPANY);
+        options[options.length] = new Option(option, option);
+      }
+    }
+  });
+}
+
 $(document).ready(function() {
-    $('#example').DataTable( {
-      "scrollY": "18vh",
-      "scrollCollapse": true,
-      "paging": false,
-      "autoWidth": true,
-      "bFilter": false,
-      "bInfo" : false,
-      // "responsive": true,
-      // "pageResize": true,
-    });
-    $('#table').DataTable().columns.adjust().draw();
-    // $('#table').closest('.dataTables_scrollBody').css('max-height', '500px');
-    //         $('#table').DataTable().draw();
+  loadWellDrillers();
+  loadDataTable();
 } );
 
 // $(document).ready(getData(map));

@@ -105,7 +105,8 @@ div {
 }
 
 .form-group {margin: 5px;}
-
+#stats {margin: 25px;}
+.statsValues {font-weight: bold; float: right;}
 /* #example {
   font-size: 10px;
 } */
@@ -132,4 +133,11 @@ div {
 }
 
 th { font-size: 12px; }
-td { font-size: 11px; }
+table.dataTable thead th { padding: 2px 5px; }
+td {
+  /* font-size: 11px; */
+}
+table.dataTable tbody td {
+    padding: 2px 5px;
+      font-size: 11px;
+}
