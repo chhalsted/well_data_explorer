@@ -44,34 +44,175 @@ var baseLayerEsriLabels = L.esri.basemapLayer('ImageryLabels');
     }).addTo(map);
 // }
 
-map.on('zoomend', function(e) { console.log(map.getZoom()); });
+// var layerWellTowns = L.esri.featureLayer({
+//   url: 'https://gis.maine.gov/arcgis/rest/services/Boundaries/Maine_Boundaries_Town_Townships/MapServer/3',
+//   simplifyFactor: 0.5,
+//   precision: 5,
+//   // maxZoom: 11,
+//   minZoom: 6,
+//   style: function (feature) {
+//     return {fill: true
+//       ,opacity: .25
+//       , color: '#d95f0e'}
+//   },
+//   onEachFeature: function (feature, layer) {
+//     layer.bindTooltip(feature.properties.TOWN, {sticky: true});
+//   }
+// }).addTo(map);
+
+// var layerWellTowns = L.esri.featureLayer({
+//   //url: 'https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1',
+//   url: 'https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?&inSR=4326&outSR=4326&geometryType=esriGeometryEnvelope&geometry={' + map.getBounds()._southWest.lng + "," + map.getBounds()._southWest.lat + "," + map.getBounds()._northEast.lng + "," + map.getBounds()._northEast.lat + "}",
+//   simplifyFactor: 0.5,
+//   precision: 5,
+//   maxZoom: 11,
+//   minZoom: 6,
+//   where: "WELL_DRILLER_COMPANY='AFFORDABLE WELL DRILLING'",
+//   style: function (feature) {
+//     return {fill: true
+//       ,opacity: .25
+//       , color: '#d95f0e'}
+//   },
+//   onEachFeature: function (feature, layer) {
+//     layer.bindTooltip(feature.properties.WELL_LOCATION_TOWN, {sticky: true});
+//   }
+// }).addTo(map);
+
+//
+var layerWellPoints = L.esri.featureLayer({
+  url: 'https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0',
+  // maxZoom: 11,
+  minZoom: 13,
+}).addTo(map);
+
+
+
+// map.on('zoomend', function(e) { console.log(map.getZoom()); });
 
 map.on('moveend', function() {
-     console.log(map.getBounds());
+     // console.log(map.getBounds());
+     // console.log(map.getZoom());
+     // console.log($('#checkLimitSpatial').is(':checked'));
+     // console.log(document.getElementById("checkLimitSpatial").checked);
+     getSummaryStatsData();
 });
 
+// function GetSpatialFilter() {
+//   if ( $('#checkLimitSpatial').is(':checked') ) {
+//
+//   } else {
+//
+//   }
+// }
+function getData() {
+  getSummaryStatsData();
+  // getUnmappedTownsFilter();
+}
+// function getUnmappedTownsFilter() {
+//   $.ajax("https://gis.maine.gov/arcgis/rest/services/Boundaries/Maine_Boundaries_Town_Townships/MapServer/3/query?where=TOWN%3C%3E%27%27&geometry=" + map.getBounds()._southWest.lng + "," + map.getBounds()._southWest.lat + "," + map.getBounds()._northEast.lng + "," + map.getBounds()._northEast.lat + "&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=TOWN&returnGeometry=false&outSR=4326&f=geojson", {
+//     dataType: "json",
+//     success: function (response){
+//       console.log(response);
+//       console.log(response.features.length)
+//       var towns = '';
+//       for (i=0; i < response.features.length; i++) {
+//         towns = towns + "'" + (response.features[i].properties.TOWN).replace(/'/g,"''") + "',";
+//       }
+//       // console.log("WELL_LOCATION_TOWN IN (" + towns.slice(0,-1).replace(/'/g,"''") + ")")
+//       // getSummaryStatsData(encodeURIComponent("WELL_LOCATION_TOWN IN (" + towns.slice(0,-1) + ")"));
+//       getSummaryStatsData(encodeURIComponent("OBJECTID>0"));
+//       // var properties = response.features;
+//       // console.log(properties)
+//       // for ( var attr in properties ) {
+//       //   console.log (attr);
+//       // }
+//     }
+//   })
+// }
+// var townsFilter = getTownsFilter();
+// console.log(townsFilter);
 
-function GetSummaryStatsData() {
+var layerWellTowns = '';
+function loadMapTownsLayer() {
+  // console.log('loadMap ' + url);
+  if (layerWellTowns){
+    map.removeLayer(layerWellTowns)
+  };
+  var dataLayer = $('#selectDataLayer :selected').val();
+  var driller = document.getElementById("selectDriller").value;
+  // map.eachLayer(function (layer) {
+  //   map.removeLayer(layer);
+  // });
+  layerWellTowns = L.esri.featureLayer({
+    url: 'https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1',
+    // url: url,
+    // url: "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?where=WELL_DRILLER_COMPANY%3D%27AFFORDABLE+WELL+DRILLING%27&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=WELL_LOCATION_TOWN&returnGeometry=true&returnCentroid=false&featureEncoding=esriDefault&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&datumTransformation=&applyVCSProjection=false&returnIdsOnly=false&returnUniqueIdsOnly=false&returnCountOnly=false&returnExtentOnly=false&returnQueryGeometry=false&returnDistinctValues=false&cacheHint=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&having=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&returnExceededLimitFeatures=true&quantizationParameters=&sqlFormat=none&f=pgeojson&token=",
+    simplifyFactor: 0.5,
+    precision: 5,
+    maxZoom: 12,
+    minZoom: 6,
+    where: "WELL_DRILLER_COMPANY='" + driller + "'",
+    style: function (feature) {
+      return {fill: true
+        ,opacity: .25
+        , color: '#d95f0e'}
+    },
+    onEachFeature: function (feature, layer) {
+      layer.bindTooltip(feature.properties.WELL_LOCATION_TOWN, {sticky: true});
+    }
+  }).addTo(map);
+}
+
+function getSummaryStatsData() {
+  // function getSummaryStatsData(unmappedTownsFilter) {
+  // getTownsFilter();
+  // var townFilter = '';
+  // var aTownFilter = $.ajax("https://gis.maine.gov/arcgis/rest/services/Boundaries/Maine_Boundaries_Town_Townships/MapServer/3/query?where=TOWN%3C%3E%27%27&geometry=" + map.getBounds()._southWest.lng + "," + map.getBounds()._southWest.lat + "," + map.getBounds()._northEast.lng + "," + map.getBounds()._northEast.lat + "&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=TOWN&returnGeometry=false&outSR=4326&f=geojson",
+  //   {dataType: "json",
+  //   success: function(response){ }
+  // })
+  // $.when(aTownFilter).done(function(r1) {
+  //     console.log(r1);
+  //     console.log(r1.features.length)
+  //     for (i=0; i < r1.features.length; i++) {
+  //       townFilter = townFilter + "'" + r1.features[i].properties.TOWN + "',";
+  //     }
+  //     console.log(townFilter)
+  //     // townFilter = "WELL_LOCATION_TOWN IN (" + townFilter.slice(0,-1).replace(/'/g,"''") + ")"
+  // });
+  // console.log('done ' + townFilter)
+
+
   var dataLayer = $('#selectDataLayer :selected').val();
   var driller = document.getElementById("selectDriller").value;
   if (driller == "ALL") {
-    var whereDriller = "(WELL_DRILLER_COMPANY LIKE '%' OR WELL_DRILLER_COMPANY IS NULL)";
+    var whereDriller = encodeURIComponent("(WELL_DRILLER_COMPANY LIKE '%' OR WELL_DRILLER_COMPANY IS NULL)");
   } else {
-    var whereDriller = "WELL_DRILLER_COMPANY='" + driller.replace(/'/g,"''") + "'";
+    var whereDriller = encodeURIComponent("WELL_DRILLER_COMPANY='" + driller.replace(/'/g,"''") + "'");
   }
-  var whereTotalWells = encodeURIComponent(whereDriller);
-  var uriTotalWellsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=" + whereTotalWells + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
-  var uriTotalWellsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?where=" + whereTotalWells + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+  var extentFilterMapped = '';
+  if ( $('#checkLimitSpatial').is(':checked') ) {
+    // console.log(map.getBounds());
+    extentFilterMapped = "&inSR=4326&outSR=4326&geometryType=esriGeometryEnvelope&geometry={" + map.getBounds()._southWest.lng + "," + map.getBounds()._southWest.lat + "," + map.getBounds()._northEast.lng + "," + map.getBounds()._northEast.lat + "}";
+  }
+
+  // var whereTotalWells = encodeURIComponent(whereDriller);
+  var uriTotalWellsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=" + whereDriller + extentFilterMapped + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+  var uriTotalWellsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/2/query?where=" + whereDriller + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+// console.log(uriTotalWellsUnmapped);
+  //var uriTotalWellsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/2/query?where=" + whereDriller + "%20AND%20" + unmappedTownsFilter + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
 
   var d = new Date();
   var y = d.getFullYear();
-  var whereCurrentYearWells = encodeURIComponent(whereDriller + " AND DRILL_DATE LIKE '%" + y + "%'");
-  var uriCurrentYearWellsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=" + whereCurrentYearWells + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
-  var uriCurrentYearWellsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?where=" + whereCurrentYearWells + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+  var whereCurrentYearWells = whereDriller + encodeURIComponent(" AND DRILL_DATE LIKE '%" + y + "%'");
+  var uriCurrentYearWellsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=" + whereCurrentYearWells + extentFilterMapped + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+  var uriCurrentYearWellsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/2/query?where=" + whereCurrentYearWells + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+  // var uriCurrentYearWellsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/2/query?where=" + whereCurrentYearWells + "%20AND%20" + unmappedTownsFilter + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
 
-  // var uriSummaryStats = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?where=" + whereTotalWells + "&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22min%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%22outStatisticFieldName%22%3A%20%22MIN%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22avg%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%22outStatisticFieldName%22%3A%20%22MIN%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22max%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%22outStatisticFieldName%22%3A%20%22MIN%22%0D%0A++%7D%0D%0A%5D&f=pgeojson";
-  var uriSummaryStatsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=" + whereTotalWells + "&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22min%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MIN%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22avg%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22AVG%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22max%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MAX%22%0D%0A++%7D%0D%0A%5D&f=pgeojson"
-  var uriSummaryStatsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?where=" + whereTotalWells + "&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22min%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MIN%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22avg%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22AVG%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22max%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MAX%22%0D%0A++%7D%0D%0A%5D&f=pgeojson"
+  // var uriSummaryStats = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/2/query?where=" + whereDriller + "&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22min%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%22outStatisticFieldName%22%3A%20%22MIN%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22avg%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%22outStatisticFieldName%22%3A%20%22MIN%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22max%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%22outStatisticFieldName%22%3A%20%22MIN%22%0D%0A++%7D%0D%0A%5D&f=pgeojson";
+  var uriSummaryStatsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=" + whereDriller + extentFilterMapped + "&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22min%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MIN%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22avg%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22AVG%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22max%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MAX%22%0D%0A++%7D%0D%0A%5D&f=pgeojson"
+  var uriSummaryStatsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/2/query?where=" + whereDriller + "&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22min%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MIN%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22avg%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22AVG%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22max%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MAX%22%0D%0A++%7D%0D%0A%5D&f=pgeojson"
+  // var uriSummaryStatsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/2/query?where=" + whereDriller + "%20AND%20" + unmappedTownsFilter + "&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22min%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MIN%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22avg%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22AVG%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22max%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MAX%22%0D%0A++%7D%0D%0A%5D&f=pgeojson"
   // console.log (uriSummaryStats);
   var a1 = $.ajax(uriTotalWellsMapped, {dataType: "json",success: function(response){ } }),
       a2 = $.ajax(uriTotalWellsUnmapped, {dataType: "json",success: function(response){ } }),
@@ -85,16 +226,16 @@ function GetSummaryStatsData() {
       // [data, textStatus, jqXHR]
       // e.g. To access returned data, access the array at index 0
       // console.log(r1[0]);
-      console.log(r1[0].properties.count);
+      // console.log(r1[0].properties.count);
       $("#strTotalWells").text(parseInt(r1[0].properties.count) + parseInt(r2[0].properties.count));
       // console.log(r2[0]);
-      console.log(r2[0].properties.count);
-      $("#strTotalWellsMapped").text(r2[0].properties.count + ' (' + Math.round((parseInt(r2[0].properties.count) / (parseInt(r2[0].properties.count) + parseInt(r1[0].properties.count)))*100, 0) + '%)');
-      console.log(r3[0].properties.count);
-      console.log(r4[0].properties.count);
+      // console.log(r2[0].properties.count);
+      $("#strTotalWellsMapped").text(r1[0].properties.count + ' (' + Math.round((parseInt(r1[0].properties.count) / (parseInt(r2[0].properties.count) + parseInt(r1[0].properties.count)))*100, 0) + '%)');
+      // console.log(r3[0].properties.count);
+      // console.log(r4[0].properties.count);
       $("#strTotalWellsCurrentYear").text(parseInt(r3[0].properties.count) + parseInt(r4[0].properties.count));
-      console.log(r5[0]);
-      console.log(r6[0]);
+      // console.log(r5[0]);
+      // console.log(r6[0]);
       $("#strMinimumLabel").text($('#selectDataLayer :selected').text());
       $("#strMinimum").text(parseInt(r5[0].features[0].properties.MIN) + parseInt(r6[0].features[0].properties.MIN));
       $("#strAverageLabel").text($('#selectDataLayer :selected').text());
@@ -102,6 +243,11 @@ function GetSummaryStatsData() {
       $("#strMaximumLabel").text($('#selectDataLayer :selected').text());
       $("#strMaximum").text(parseInt(r5[0].features[0].properties.MAX) + parseInt(r5[0].features[0].properties.MAX));
   });
+
+  //load the well towns layer
+  // var whereDriller = encodeURIComponent("WELL_DRILLER_COMPANY='" + driller.replace(/'/g,"''") + "'");
+  // var uriMapTownsLayer = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?where=" + whereDriller + extentFilterMapped + "&returnGeometry=true&outSR=4326&f=pgeojson";
+  // loadMapTownsLayer(driller.replace(/'/g,"''"));
 }
 
 $('#selectDriller').on('change', function () {
@@ -112,7 +258,8 @@ $('#selectDriller').on('change', function () {
   // console.log(document.getElementById("selectDataLayer").value)
   // console.log($('#selectDataLayer :selected').val())
   // console.log($('#selectDataLayer :selected').text())
-  GetSummaryStatsData();
+  getData();
+  loadMapTownsLayer();
 });
 $('#selectDataLayer').on('change', function () {
 	// var driller = document.getElementById("selectDriller").value;
@@ -122,9 +269,12 @@ $('#selectDataLayer').on('change', function () {
   // console.log(document.getElementById("selectDataLayer").value)
   // console.log($('#selectDataLayer :selected').val())
   // console.log($('#selectDataLayer :selected').text())
-  GetSummaryStatsData();
+  getData();
+  loadMapTownsLayer();
 });
-
+$('#checkLimitSpatial').on('change', function () {
+  getData();
+});
 
 
 function loadDataTable () {
@@ -151,7 +301,7 @@ function loadWellDrillers() {
         options[options.length] = new Option(option, option);
       }
       // var driller = document.getElementById("selectDriller").value;
-      GetSummaryStatsData();
+      getData();
     }
   });
 }
@@ -238,6 +388,7 @@ var myChart = new Chart(ctx, {
 $(document).ready(function() {
   loadWellDrillers();
   loadDataTable();
+  loadMapTownsLayer();
 } );
 
 })(); //last line of main.js - self-executing anonymous function
