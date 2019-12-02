@@ -16,10 +16,10 @@ var baseLayerStamen = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/terr
   ,subdomains: 'abcd',minZoom: 0,maxZoom: 20
 })
 //MapBox gray scale
-var mbAttr = '<a href="http://openstreetmap.org">OpenStreetMap</a> |' +' <a href="http://mapbox.com">Mapbox</a> | Christian Halsted';
+var mbAttr = '<a href="http://openstreetmap.org">OpenStreetMap</a> | <a href="http://mapbox.com">Mapbox</a> | Christian Halsted';
 var apitoken = 'pk.eyJ1IjoiY2hoYWxzdGVkIiwiYSI6ImNqbDJ5NTI1aDF2a2szcW41dGFvcnlsMDUifQ.VwB2q6vg1Z6ORVv4Myyrhg'
 var mbUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={token}';
-var baseLayerMBGrayscale = L.tileLayer(mbUrl, {id: 'mapbox.light', token: apitoken, attribution: mbAttr}).addTo(map);;
+var baseLayerMBGrayscale = L.tileLayer(mbUrl, {id: 'mapbox.light', token: apitoken, attribution: mbAttr}).addTo(map);
 //Esri imagery
 var baseLayerEsri = L.esri.basemapLayer('Imagery');
 var baseLayerEsriLabels = L.esri.basemapLayer('ImageryLabels');
@@ -28,10 +28,10 @@ var baseLayerEsriLabels = L.esri.basemapLayer('ImageryLabels');
   //add layer control for base map and geoJSON layers
   L.control.layers(
     {
-      "MapBox Grayscalse":baseLayerMBGrayscale
-      ,"Open Street Map":baseLayerOSM
-      ,"Stamen Terrain":baseLayerStamen
-      ,"Esri Imagery":baseLayerEsri
+      "MapBox Grayscalse":baseLayerMBGrayscale,
+      "Open Street Map":baseLayerOSM,
+      "Stamen Terrain":baseLayerStamen,
+      "Esri Imagery":baseLayerEsri,
     },
     {
       // "Wells":layerWells
@@ -79,10 +79,26 @@ var baseLayerEsriLabels = L.esri.basemapLayer('ImageryLabels');
 // }).addTo(map);
 
 //
-var layerWellPoints = L.esri.featureLayer({
-  url: 'https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0',
-  // maxZoom: 11,
+// var layerWellPoints = L.esri.featureLayer({
+//   url: 'https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0',
+//   // maxZoom: 11,
+//   minZoom: 13,
+// }).addTo(map);
+
+layerTowns = L.esri.featureLayer({
+  url: 'https://gis.maine.gov/arcgis/rest/services/Boundaries/Maine_Boundaries_Town_Townships/MapServer/3',
+  attribution: 'MEGIS',
+  simplifyFactor: 0.5,
+  precision: 5,
   minZoom: 13,
+  style: function (feature) {
+    return {fill: false,
+      opacity: .25
+      }
+  },
+  // onEachFeature: function (feature, layer) {
+  //   layer.bindTooltip(feature.properties.TOWN, {sticky: true});
+  // }
 }).addTo(map);
 
 
@@ -94,7 +110,11 @@ map.on('moveend', function() {
      // console.log(map.getZoom());
      // console.log($('#checkLimitSpatial').is(':checked'));
      // console.log(document.getElementById("checkLimitSpatial").checked);
-     getSummaryStatsData();
+     if ( $('#checkLimitSpatial').is(':checked') ) {
+       getSummaryStatsData();
+       loadChartLocatedByYear();
+       loadChartDataLayerByClass();
+     }
 });
 
 // function GetSpatialFilter() {
@@ -132,6 +152,40 @@ function getData() {
 // var townsFilter = getTownsFilter();
 // console.log(townsFilter);
 
+
+// var layerWellPoints = L.esri.featureLayer({
+//   url: 'https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0',
+//   // maxZoom: 11,
+//   minZoom: 13,
+// }).addTo(map);
+var layerWellPoints = '';
+function loadMapWellsLayer() {
+  if (layerWellPoints){
+    map.removeLayer(layerWellPoints)
+  };
+  var dataLayer = $('#selectDataLayer :selected').val();
+  if ( document.getElementById("selectDriller").value == 'ALL' ) {
+    drillerWhere = "WELL_DRILLER_COMPANY LIKE '%' OR WELL_DRILLER_COMPANY IS NULL";
+  } else {
+    drillerWhere = "WELL_DRILLER_COMPANY='" + document.getElementById("selectDriller").value + "'";
+  }
+  // var driller = document.getElementById("selectDriller").value;
+  layerWellPoints = L.esri.featureLayer({
+    url: 'https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0',
+    attribution: '<a href="https://www.maine.gov/dacf/mgs/">Maine Geological Survey</a>',
+    minZoom: 13,
+    where: drillerWhere,
+    // style: function (feature) {
+    //   return {fill: true
+    //     ,opacity: .25
+    //     ,color: '#d95f0e'}
+    // },
+    onEachFeature: function (feature, layer) {
+      layer.bindTooltip(feature.properties.WELL_LOCATION_TOWN, {sticky: true});
+    }
+  }).addTo(map);
+}
+
 var layerWellTowns = '';
 function loadMapTownsLayer() {
   // console.log('loadMap ' + url);
@@ -144,14 +198,14 @@ function loadMapTownsLayer() {
   //   map.removeLayer(layer);
   // });
   layerWellTowns = L.esri.featureLayer({
-    url: 'https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1',
+    url: 'https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/0',
     // url: url,
     // url: "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?where=WELL_DRILLER_COMPANY%3D%27AFFORDABLE+WELL+DRILLING%27&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=WELL_LOCATION_TOWN&returnGeometry=true&returnCentroid=false&featureEncoding=esriDefault&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&datumTransformation=&applyVCSProjection=false&returnIdsOnly=false&returnUniqueIdsOnly=false&returnCountOnly=false&returnExtentOnly=false&returnQueryGeometry=false&returnDistinctValues=false&cacheHint=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&having=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&returnExceededLimitFeatures=true&quantizationParameters=&sqlFormat=none&f=pgeojson&token=",
     simplifyFactor: 0.5,
     precision: 5,
     maxZoom: 12,
     minZoom: 6,
-    where: "WELL_DRILLER_COMPANY='" + driller + "'",
+    where: "WELL_DRILLER_COMPANY='" + driller.replace(/'/g,"''") + "'",
     style: function (feature) {
       return {fill: true
         ,opacity: .25
@@ -185,11 +239,11 @@ function getSummaryStatsData() {
 
   var dataLayer = $('#selectDataLayer :selected').val();
   var driller = document.getElementById("selectDriller").value;
-  if (driller == "ALL") {
-    var whereDriller = encodeURIComponent("(WELL_DRILLER_COMPANY LIKE '%' OR WELL_DRILLER_COMPANY IS NULL)");
-  } else {
+  // if (driller == "ALL") {
+  //   var whereDriller = encodeURIComponent("(WELL_DRILLER_COMPANY LIKE '%' OR WELL_DRILLER_COMPANY IS NULL)");
+  // } else {
     var whereDriller = encodeURIComponent("WELL_DRILLER_COMPANY='" + driller.replace(/'/g,"''") + "'");
-  }
+  // }
   var extentFilterMapped = '';
   if ( $('#checkLimitSpatial').is(':checked') ) {
     // console.log(map.getBounds());
@@ -197,52 +251,75 @@ function getSummaryStatsData() {
   }
 
   // var whereTotalWells = encodeURIComponent(whereDriller);
-  var uriTotalWellsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=" + whereDriller + extentFilterMapped + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
-  var uriTotalWellsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/2/query?where=" + whereDriller + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
-// console.log(uriTotalWellsUnmapped);
+  // var uriTotalWellsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=" + whereDriller + extentFilterMapped + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+  // var uriTotalWells = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=" + whereDriller + extentFilterMapped + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+  var uriTotalWells = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/2/query?where=" + whereDriller + extentFilterMapped + "&returnGeometry=false&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22WELL_COUNT%22%2C%22outStatisticFieldName%22%3A%22TotalWells%22%7D%5D&f=pgeojson";
+  // console.log(uriTotalWells);
+  // var uriTotalWellsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?where=" + whereDriller + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+  // var uriTotalWellsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=LOCATED%3D%27Yes%27%20AND%20" + whereDriller + extentFilterMapped + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+  var uriTotalWellsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/2/query?where=" + whereDriller + extentFilterMapped + "&returnGeometry=false&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22LOCATED_YES%22%2C%22outStatisticFieldName%22%3A%22WellsLocated%22%7D%5D&f=pgeojson";
+// console.log(uriTotalWellsMapped);
   //var uriTotalWellsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/2/query?where=" + whereDriller + "%20AND%20" + unmappedTownsFilter + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
 
-  var d = new Date();
-  var y = d.getFullYear();
-  var whereCurrentYearWells = whereDriller + encodeURIComponent(" AND DRILL_DATE LIKE '%" + y + "%'");
-  var uriCurrentYearWellsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=" + whereCurrentYearWells + extentFilterMapped + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
-  var uriCurrentYearWellsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/2/query?where=" + whereCurrentYearWells + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+  // var d = new Date();
+  // var y = d.getFullYear();
+  // var whereCurrentYearWells = whereDriller + encodeURIComponent(" AND DRILL_DATE LIKE '%" + y + "%'");
+  // var uriCurrentYearWellsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=" + whereCurrentYearWells + extentFilterMapped + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+  // var uriCurrentYearWellsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?where=" + whereCurrentYearWells + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+  // var uriCurrentYearWells = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=" + whereCurrentYearWells + extentFilterMapped + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+  var uriCurrentYearWells = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/2/query?where=" + whereDriller + extentFilterMapped + "&returnGeometry=false&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22REPORTED_CURRENT_YEAR%22%2C%22outStatisticFieldName%22%3A%22WellsCurrentYear%22%7D%5D&f=pgeojson";
   // var uriCurrentYearWellsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/2/query?where=" + whereCurrentYearWells + "%20AND%20" + unmappedTownsFilter + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
+  // console.log(uriCurrentYearWells);
 
   // var uriSummaryStats = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/2/query?where=" + whereDriller + "&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22min%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%22outStatisticFieldName%22%3A%20%22MIN%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22avg%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%22outStatisticFieldName%22%3A%20%22MIN%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22max%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%22outStatisticFieldName%22%3A%20%22MIN%22%0D%0A++%7D%0D%0A%5D&f=pgeojson";
-  var uriSummaryStatsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=" + whereDriller + extentFilterMapped + "&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22min%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MIN%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22avg%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22AVG%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22max%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MAX%22%0D%0A++%7D%0D%0A%5D&f=pgeojson"
-  var uriSummaryStatsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/2/query?where=" + whereDriller + "&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22min%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MIN%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22avg%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22AVG%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22max%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MAX%22%0D%0A++%7D%0D%0A%5D&f=pgeojson"
+  // var uriSummaryStatsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=" + whereDriller + extentFilterMapped + "&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22min%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MIN%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22avg%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22AVG%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22max%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MAX%22%0D%0A++%7D%0D%0A%5D&f=pgeojson"
+  // var uriSummaryStatsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?where=" + whereDriller + "&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22min%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MIN%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22avg%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22AVG%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22max%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MAX%22%0D%0A++%7D%0D%0A%5D&f=pgeojson"
   // var uriSummaryStatsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/2/query?where=" + whereDriller + "%20AND%20" + unmappedTownsFilter + "&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22min%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MIN%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22avg%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22AVG%22%0D%0A++%7D%2C%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22max%22%2C%0D%0A++++%22onStatisticField%22%3A+%22" + dataLayer + "%22%2C%0D%0A++++%22outStatisticFieldName%22%3A+%22MAX%22%0D%0A++%7D%0D%0A%5D&f=pgeojson"
   // console.log (uriSummaryStats);
-  var a1 = $.ajax(uriTotalWellsMapped, {dataType: "json",success: function(response){ } }),
-      a2 = $.ajax(uriTotalWellsUnmapped, {dataType: "json",success: function(response){ } }),
-      a3 = $.ajax(uriCurrentYearWellsMapped, {dataType: "json",success: function(response){ } }),
-      a4 = $.ajax(uriCurrentYearWellsUnmapped, {dataType: "json",success: function(response){ } }),
-      a5 = $.ajax(uriSummaryStatsMapped, {dataType: "json",success: function(response){ } }),
-      a6 = $.ajax(uriSummaryStatsUnmapped, {dataType: "json",success: function(response){ } })
+  uriSummaryMinMaxAvg = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/2/query?where=" + whereDriller + extentFilterMapped + "&returnGeometry=false&outStatistics=%5B%7B%22statisticType%22%3A%22min%22%2C%22onStatisticField%22%3A%22MIN_" + dataLayer + "%22%2C%22outStatisticFieldName%22%3A%22MinDataLayer%22%7D%2C%7B%22statisticType%22%3A%22avg%22%2C%22onStatisticField%22%3A%22AVG_" + dataLayer + "%22%2C%22outStatisticFieldName%22%3A%22AvgDataLayer%22%7D%2C%7B%22statisticType%22%3A%22max%22%2C%22onStatisticField%22%3A%22MAX_" + dataLayer + "%22%2C%22outStatisticFieldName%22%3A%22MaxDataLayer%22%7D%5D&f=pgeojson";
+  // console.log (uriSummaryMinMaxAvg);
 
-  $.when(a1, a2, a3, a4, a5, a6).done(function(r1, r2, r3, r4, r5, r6) {
-      // Each returned resolve has the following structure:
-      // [data, textStatus, jqXHR]
-      // e.g. To access returned data, access the array at index 0
-      // console.log(r1[0]);
-      // console.log(r1[0].properties.count);
-      $("#strTotalWells").text(parseInt(r1[0].properties.count) + parseInt(r2[0].properties.count));
-      // console.log(r2[0]);
-      // console.log(r2[0].properties.count);
-      $("#strTotalWellsMapped").text(r1[0].properties.count + ' (' + Math.round((parseInt(r1[0].properties.count) / (parseInt(r2[0].properties.count) + parseInt(r1[0].properties.count)))*100, 0) + '%)');
-      // console.log(r3[0].properties.count);
-      // console.log(r4[0].properties.count);
-      $("#strTotalWellsCurrentYear").text(parseInt(r3[0].properties.count) + parseInt(r4[0].properties.count));
-      // console.log(r5[0]);
-      // console.log(r6[0]);
-      $("#strMinimumLabel").text($('#selectDataLayer :selected').text());
-      $("#strMinimum").text(parseInt(r5[0].features[0].properties.MIN) + parseInt(r6[0].features[0].properties.MIN));
-      $("#strAverageLabel").text($('#selectDataLayer :selected').text());
-      $("#strAverage").text(Math.round((r5[0].features[0].properties.AVG + r6[0].features[0].properties.AVG)/2),0);
-      $("#strMaximumLabel").text($('#selectDataLayer :selected').text());
-      $("#strMaximum").text(parseInt(r5[0].features[0].properties.MAX) + parseInt(r5[0].features[0].properties.MAX));
-  });
+  var a1 = $.ajax(uriTotalWells, {dataType: "json",success: function(response){ } }),
+      a2 = $.ajax(uriTotalWellsMapped, {dataType: "json",success: function(response){ } }),
+      a3 = $.ajax(uriCurrentYearWells, {dataType: "json",success: function(response){ } }),
+      a4 = $.ajax(uriSummaryMinMaxAvg, {dataType: "json",success: function(response){ } })
+      // a4 = $.ajax(uriCurrentYearWellsUnmapped, {dataType: "json",success: function(response){ } }),
+      // a5 = $.ajax(uriSummaryStatsMapped, {dataType: "json",success: function(response){ } }),
+      // a6 = $.ajax(uriSummaryStatsUnmapped, {dataType: "json",success: function(response){ } })
+
+  $.when(a1, a2, a3, a4).done(function(r1, r2, r3, r4) {
+    // Each returned resolve has the following structure:
+    // [data, textStatus, jqXHR]
+    // e.g. To access returned data, access the array at index 0
+    // console.log(r1[0]);
+    // console.log(r1[0].properties.count);
+    // $("#strTotalWells").text(parseInt(r1[0].properties.count) + parseInt(r2[0].properties.count));
+    // $("#strTotalWells").text(r1[0].properties.count);
+    $("#strTotalWells").text(r1[0].features[0].properties.TotalWells);
+    // console.log(r2[0]);
+    // console.log(r2[0].properties.count);
+    // $("#strTotalWellsMapped").text(r2[0].properties.count + ' (' + Math.round((parseInt(r2[0].properties.count) / (parseInt(r1[0].properties.count)))*100, 0) + '%)');
+    $("#strTotalWellsMapped").text(r2[0].features[0].properties.WellsLocated + ' (' + Math.round((parseInt(r2[0].features[0].properties.WellsLocated) / (parseInt(r1[0].features[0].properties.TotalWells)))*100, 0) + '%)');
+    // console.log(r3[0].properties.count);
+    // console.log(r4[0].properties.count);
+    // $("#strTotalWellsCurrentYear").text(parseInt(r3[0].properties.count) + parseInt(r4[0].properties.count));
+    // $("#strTotalWellsCurrentYear").text(parseInt(r3[0].properties.count));
+    $("#strTotalWellsCurrentYear").text(parseInt(r3[0].features[0].properties.WellsCurrentYear));
+    // console.log(r5[0]);
+    // console.log(r6[0]);
+    // $("#strMinimumLabel").text($('#selectDataLayer :selected').text());
+    // $("#strMinimum").text(parseInt(r5[0].features[0].properties.MIN) + parseInt(r6[0].features[0].properties.MIN));
+    // $("#strAverageLabel").text($('#selectDataLayer :selected').text());
+    // $("#strAverage").text(Math.round((r5[0].features[0].properties.AVG + r6[0].features[0].properties.AVG)/2),0);
+    // $("#strMaximumLabel").text($('#selectDataLayer :selected').text());
+    // $("#strMaximum").text(parseInt(r5[0].features[0].properties.MAX) + parseInt(r5[0].features[0].properties.MAX));
+    $("#strMinimumLabel").text($('#selectDataLayer :selected').text());
+    $("#strMinimum").text(r4[0].features[0].properties.MinDataLayer);
+    $("#strAverageLabel").text($('#selectDataLayer :selected').text());
+    $("#strAverage").text(Math.round(r4[0].features[0].properties.AvgDataLayer,0));
+    $("#strMaximumLabel").text($('#selectDataLayer :selected').text());
+    $("#strMaximum").text(r4[0].features[0].properties.MaxDataLayer);
+});
 
   //load the well towns layer
   // var whereDriller = encodeURIComponent("WELL_DRILLER_COMPANY='" + driller.replace(/'/g,"''") + "'");
@@ -260,6 +337,9 @@ $('#selectDriller').on('change', function () {
   // console.log($('#selectDataLayer :selected').text())
   getData();
   loadMapTownsLayer();
+  loadMapWellsLayer();
+  loadChartLocatedByYear();
+  loadChartDataLayerByClass();
 });
 $('#selectDataLayer').on('change', function () {
 	// var driller = document.getElementById("selectDriller").value;
@@ -271,9 +351,14 @@ $('#selectDataLayer').on('change', function () {
   // console.log($('#selectDataLayer :selected').text())
   getData();
   loadMapTownsLayer();
+  loadMapWellsLayer();
+  loadChartLocatedByYear();
+  loadChartDataLayerByClass();
 });
 $('#checkLimitSpatial').on('change', function () {
   getData();
+  loadChartLocatedByYear();
+  loadChartDataLayerByClass();
 });
 
 
@@ -290,7 +375,8 @@ function loadDataTable () {
 }
 
 function loadWellDrillers() {
-  var uri = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=WELL_DRILLER_COMPANY+LIKE+%27%25%27&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=WELL_DRILLER_COMPANY&returnGeometry=false&featureEncoding=esriDefault&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&datumTransformation=&applyVCSProjection=false&returnIdsOnly=false&returnUniqueIdsOnly=false&returnCountOnly=false&returnExtentOnly=false&returnQueryGeometry=false&returnDistinctValues=false&cacheHint=false&orderByFields=WELL_DRILLER_COMPANY&groupByFieldsForStatistics=WELL_DRILLER_COMPANY&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22count%22%2C%0D%0A++++%22onStatisticField%22%3A+%22WELL_DRILLER_COMPANY%22%0D%0A++%7D%0D%0A%5D&having=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&returnExceededLimitFeatures=true&quantizationParameters=&sqlFormat=none&f=pgeojson&token=";
+  // var uri = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=WELL_DRILLER_COMPANY+LIKE+%27%25%27&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=WELL_DRILLER_COMPANY&returnGeometry=false&featureEncoding=esriDefault&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&datumTransformation=&applyVCSProjection=false&returnIdsOnly=false&returnUniqueIdsOnly=false&returnCountOnly=false&returnExtentOnly=false&returnQueryGeometry=false&returnDistinctValues=false&cacheHint=false&orderByFields=WELL_DRILLER_COMPANY&groupByFieldsForStatistics=WELL_DRILLER_COMPANY&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22count%22%2C%0D%0A++++%22onStatisticField%22%3A+%22WELL_DRILLER_COMPANY%22%0D%0A++%7D%0D%0A%5D&having=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&returnExceededLimitFeatures=true&quantizationParameters=&sqlFormat=none&f=pgeojson&token=";
+  var uri = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=WELL_DRILLER_COMPANY+LIKE+%27%25%27&outFields=WELL_DRILLER_COMPANY&returnGeometry=false&orderByFields=WELL_DRILLER_COMPANY&groupByFieldsForStatistics=WELL_DRILLER_COMPANY&outStatistics=%5B%0D%0A%7B%0D%0A%22statisticType%22%3A+%22count%22%2C%0D%0A%22onStatisticField%22%3A%22WELL_DRILLER_COMPANY%22%0D%0A++%7D%0D%0A%5D&f=pgeojson";
   $.ajax(uri, {
     dataType: "json"
     ,success: function(response){
@@ -346,49 +432,144 @@ function loadWellDrillers() {
 //
 // $(document).ready(jQueryAjax);
 
+function loadChartLocatedByYear() {
+  var dataLayer = $('#selectDataLayer :selected').val();
+  var driller = document.getElementById("selectDriller").value;
+  if (driller == "ALL") {
+    var whereDriller = encodeURIComponent("(WELL_DRILLER_COMPANY LIKE '%' OR WELL_DRILLER_COMPANY IS NULL)");
+  } else {
+    var whereDriller = encodeURIComponent("WELL_DRILLER_COMPANY='" + driller.replace(/'/g,"''") + "'");
+  }
+  var extentFilterMapped = '';
+  if ( $('#checkLimitSpatial').is(':checked') ) {
+    extentFilterMapped = "&inSR=4326&outSR=4326&geometryType=esriGeometryEnvelope&geometry={" + map.getBounds()._southWest.lng + "," + map.getBounds()._southWest.lat + "," + map.getBounds()._northEast.lng + "," + map.getBounds()._northEast.lat + "}";
+  }
 
-var ctx = document.getElementById('myChart').getContext('2d');
-var myChart = new Chart(ctx, {
+  //need to change LOCATED field to 2 fields LOCATED_YES and LOCATED_NO (1 and 0) and then can do one AJAX call to get all statsValues
+
+  var uriYearsLabels = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=DRILL_DATE_YEAR%20IS%20NOT%20NULL%20AND%20" + whereDriller + extentFilterMapped + "&outFields=DRILL_DATE_YEAR&returnGeometry=false&orderByFields=DRILL_DATE_YEAR&groupByFieldsForStatistics=DRILL_DATE_YEAR&outStatistics=%5B%0D%0A%7B%0D%0A%22statisticType%22%3A%22count%22%2C%0D%0A%22onStatisticField%22%3A%22WELLNO%22%2C%0D%0A%22outStatisticFieldName%22%3A%22WELLS%22%0D%0A%7D%0D%0A%5D&f=pgeojson"
+  // console.log(uriYearsLabels);
+  var uriLocatedByYear = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=DRILL_DATE_YEAR%20IS%20NOT%20NULL%20AND%20LOCATED%3D%27Yes%27%20AND%20" + whereDriller + extentFilterMapped + "&outFields=DRILL_DATE_YEAR&returnGeometry=false&orderByFields=DRILL_DATE_YEAR&groupByFieldsForStatistics=DRILL_DATE_YEAR&outStatistics=%5B%0D%0A%7B%0D%0A%22statisticType%22%3A%22count%22%2C%0D%0A%22onStatisticField%22%3A%22WELLNO%22%2C%0D%0A%22outStatisticFieldName%22%3A%22WellsLocated%22%0D%0A%7D%0D%0A%5D&f=pgeojson"
+  console.log(uriLocatedByYear);
+  var uriUnlocatedByYear = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=DRILL_DATE_YEAR%20IS%20NOT%20NULL%20AND%20LOCATED%3D%27No%27%20AND%20" + whereDriller + extentFilterMapped + "&outFields=DRILL_DATE_YEAR&returnGeometry=false&orderByFields=DRILL_DATE_YEAR&groupByFieldsForStatistics=DRILL_DATE_YEAR&outStatistics=%5B%0D%0A%7B%0D%0A%22statisticType%22%3A%22count%22%2C%0D%0A%22onStatisticField%22%3A%22WELLNO%22%2C%0D%0A%22outStatisticFieldName%22%3A%22WellsUnlocated%22%0D%0A%7D%0D%0A%5D&f=pgeojson"
+  console.log(uriUnlocatedByYear);
+
+  var a1 = $.ajax(uriYearsLabels, {dataType: "json",success: function(response){ } }),
+      a2 = $.ajax(uriLocatedByYear, {dataType: "json",success: function(response){ } }),
+      a3 = $.ajax(uriUnlocatedByYear, {dataType: "json",success: function(response){ } })
+
+  $.when(a1, a2, a3).done(function(r1, r2, r3) {
+    // console.log(r1[0]);
+    console.log(r1[0].features.length);
+    var arrayYearsLabels = [];
+    for (var i=0; i < r1[0].features.length; i++) {
+      arrayYearsLabels.push(r1[0].features[i].properties.DRILL_DATE_YEAR);
+    }
+    // console.log(arrayYearsLabels)
+
+    console.log(r2[0]);
+    console.log(r2[0].features.length);
+    var arrayLocatedByYear = [];
+    for (var i=0; i < r2[0].features.length; i++) {
+      arrayLocatedByYear.push(r2[0].features[i].properties.WellsLocated);
+    }
+    console.log(arrayLocatedByYear)
+
+    var ctx = document.getElementById('chartLocatedByYear').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        // labels: ['2005', '2006', '2007', '2008','2009'],
+        labels: arrayYearsLabels,
+        datasets: [{
+            label: 'Unlocated',
+            data: [12,5,9,12,13],
+            backgroundColor: 'rgba(0, 112, 192, 0.75)',
+            borderColor: 'rgba(0, 112, 192, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'Located',
+            // data: [9,8,2,10,8],
+            data: arrayLocatedByYear,
+            backgroundColor: 'rgba(146, 208, 80, 0.75)',
+            borderColor: 'rgba(146, 208, 80, 1)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        title: {
+          display: true,
+          text: 'Total Wells Drilled by Year'
+        },
+        scales: {
+          xAxes: [{ stacked: true }],
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            },
+            stacked: true
+          }]
+        }
+      }
+    });
+  });
+
+
+};
+
+function loadChartDataLayerByClass() {
+  var ctx = document.getElementById('chartDataLayerByClass').getContext('2d');
+  var myChart = new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-        datasets: [{
-            label: '# of Votes',
-            data: [12, 19, 3, 5, 2, 3],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1
-        }]
+      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+      datasets: [{
+        label: '# of Votes',
+        data: [12, 19, 3, 5, 2, 3],
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(255, 206, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(255, 159, 64, 0.2)'
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)'
+        ],
+        borderWidth: 1
+      }]
     },
     options: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                }
-            }]
-        }
+      title: {
+        display: true,
+        text: '[Data Layer] by Map Class'
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      }
     }
-});
+  });
+}
 
 $(document).ready(function() {
   loadWellDrillers();
   loadDataTable();
   loadMapTownsLayer();
+  loadMapWellsLayer();
+  loadChartLocatedByYear();
+  loadChartDataLayerByClass();
 } );
 
 })(); //last line of main.js - self-executing anonymous function

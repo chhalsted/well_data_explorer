@@ -50,6 +50,7 @@
               <option selected value="WELL_DEPTH_FT">Well Depth</option>
   						<option value="WELL_YIELD_GPM">Well Yield</option>
               <option value="OVERBURDEN_THICKNESS_FT">Overburden Thickness</option>
+              <option value="CASING_LENGTH_FT">Casing Length</option>
     				</select>
           </div>
         </div>
@@ -84,7 +85,11 @@
         </div>
         <div class="container-fluid">
           <div class="row col-xs-12" id="divGraph">
-            <canvas id="myChart" height="250"></canvas>
+            <canvas id="chartLocatedByYear" height="250"></canvas>
+          </div>
+
+          <div class="row col-xs-12" id="divGraph">
+            <canvas id="chartDataLayerByClass" height="250"></canvas>
           </div>
         </div>
         <!-- <canvas id="myChart" width="200" height="200"></canvas> -->
