@@ -1,8 +1,9 @@
 //Christian Halsted 2019
+//GEOG 575 Final Project - Maine Water Well Database Explorer
 
 //First line of main.js...wrap everything in a self-executing anonymous function to move to local scope
 (function(){
-
+$('#body').css('min-height', screen.height);
 var map = L.map('map').setView([45.375, -69.0], 7);
 
 //create base map layers
@@ -112,10 +113,10 @@ layerTowns = L.esri.featureLayer({
 //
 //   }
 // }
-function getData() {
-  getSummaryStatsData();
-  // getUnmappedTownsFilter();
-}
+// function getData() {
+//   getSummaryStatsData();
+//   // getUnmappedTownsFilter();
+// }
 // function getUnmappedTownsFilter() {
 //   $.ajax("https://gis.maine.gov/arcgis/rest/services/Boundaries/Maine_Boundaries_Town_Townships/MapServer/3/query?where=TOWN%3C%3E%27%27&geometry=" + map.getBounds()._southWest.lng + "," + map.getBounds()._southWest.lat + "," + map.getBounds()._northEast.lng + "," + map.getBounds()._northEast.lat + "&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=TOWN&returnGeometry=false&outSR=4326&f=geojson", {
 //     dataType: "json",
@@ -141,38 +142,7 @@ function getData() {
 // console.log(townsFilter);
 
 
-// var layerWellPoints = L.esri.featureLayer({
-//   url: 'https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0',
-//   // maxZoom: 11,
-//   minZoom: 13,
-// }).addTo(map);
-var layerWellPoints = '';
-function loadMapWellsLayer() {
-  if (layerWellPoints){
-    map.removeLayer(layerWellPoints)
-  };
-  // var dataLayer = $('#selectDataLayer :selected').val();
-  if ( document.getElementById("selectDriller").value == 'ALL' ) {
-    drillerWhere = "WELL_DRILLER_COMPANY LIKE '%' OR WELL_DRILLER_COMPANY IS NULL";
-  } else {
-    drillerWhere = "WELL_DRILLER_COMPANY='" + document.getElementById("selectDriller").value + "'";
-  }
-  // var driller = document.getElementById("selectDriller").value;
-  layerWellPoints = L.esri.featureLayer({
-    url: 'https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0',
-    attribution: '<a href="https://www.maine.gov/dacf/mgs/">Maine Geological Survey</a>',
-    minZoom: 13,
-    where: drillerWhere,
-    // style: function (feature) {
-    //   return {fill: true
-    //     ,opacity: .25
-    //     ,color: '#d95f0e'}
-    // },
-    onEachFeature: function (feature, layer) {
-      layer.bindTooltip(feature.properties.WELL_LOCATION_TOWN, {sticky: true});
-    }
-  }).addTo(map);
-}
+
 
 //color ramp arrays for data layer classes,
 var colorRampOpacity = [
@@ -266,11 +236,83 @@ function loadMapTownsLayer() {
         'Average Well Depth (ft): ' + feature.properties.WELL_DEPTH_FT   + '<br>' +
         'Average Well Yield (gpm): ' + feature.properties.WELL_YIELD_GPM   + '<br>' +
         'Average Overburden Thickness (ft): ' + feature.properties.OVERBURDEN_THICKNESS_FT   + '<br>' +
-        'Average Casing Length (ft): ' + feature.properties.CASING_LENGTH_FT   ,
+        'Average Casing Length (ft): ' + feature.properties.CASING_LENGTH_FT,
         {sticky: true});
     }
   }).addTo(map);
 }
+
+
+// match the current feature's class for selected data layer to get the symbol color
+function mapWellsSymbolizeByClass ( feature ) {
+  for ( var i=0; i < 9; i++ ) {
+    if (feature.properties[dataLayerClass[dataLayer]]==dataLayerClassLabels[dataLayer][i]) {
+      return colorRampSolid[i]
+    }
+  }
+}
+
+// var layerWellPoints = L.esri.featureLayer({
+//   url: 'https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0',
+//   // maxZoom: 11,
+//   minZoom: 13,
+// }).addTo(map);
+var layerWellPoints = '';
+function loadMapWellsLayer() {
+  if (layerWellPoints){
+    map.removeLayer(layerWellPoints)
+  };
+  // var dataLayer = $('#selectDataLayer :selected').val();
+  if ( document.getElementById("selectDriller").value == 'ALL' ) {
+    drillerWhere = "WELL_DRILLER_COMPANY LIKE '%' OR WELL_DRILLER_COMPANY IS NULL";
+  } else {
+    drillerWhere = "WELL_DRILLER_COMPANY='" + document.getElementById("selectDriller").value + "'";
+  }
+  // var driller = document.getElementById("selectDriller").value;
+  layerWellPoints = L.esri.featureLayer({
+    url: 'https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/3',
+    attribution: '<a href="https://www.maine.gov/dacf/mgs/">Maine Geological Survey</a>',
+    minZoom: 13,
+    where: drillerWhere,
+    // style: function (feature) {
+    //   return {fill: true
+    //     ,opacity: .25
+    //     ,color: '#d95f0e'}
+    // },
+    pointToLayer: function (geojson, latlng) {
+      // console.log(geojson);
+      // console.log(mapWellsSymbolizeByClass(geojson));
+      return L.circleMarker(latlng, {
+        // color: 'red'
+        // color: mapTownsSymbolizeByClass(geojson)
+        fillColor: mapWellsSymbolizeByClass(geojson),
+        color: "#000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 1
+      })
+    },
+    onEachFeature: function (feature, layer) {
+      layer.bindTooltip(
+        'Well Number: ' + feature.properties.WELLNO + '<br>' +
+        'Town: ' + feature.properties.WELL_LOCATION_TOWN + '<br>' +
+        'Well Address: ' + feature.properties.WELL_LOCATION_ADDRESS + '<br>' +
+        'Drill Date: ' + feature.properties.DRILL_DATE + '<br>' +
+        'Driller: ' + feature.properties.WELL_DRILLER_COMPANY + '<br>' +
+        'Well Depth (ft): ' + feature.properties.WELL_DEPTH_FT + '<br>' +
+        'Well Yield (gpm): ' + feature.properties.WELL_YIELD_MODIFIER + ' ' + feature.properties.WELL_YIELD_GPM + '<br>' +
+        'Overburden Thickness (ft): ' + feature.properties.OVERBURDEN_THICKNESS_FT + '<br>' +
+        'Casing Length (ft): ' + feature.properties.CASING_LENGTH_FT + '<br>' +
+        'Well Use: ' + feature.properties.WELL_USE + '<br>' +
+        'Well Type: ' + feature.properties.WELL_TYPE + '<br>' +
+        'Well Construction: ' + feature.properties.WELL_CONSTRUCTION + '<br>' +
+        'Well Development: ' + feature.properties.WELL_DEVELOPMENT
+        ,
+        {sticky: true});
+    }
+  }).addTo(map);
+}
+
 
 function getSummaryStatsData() {
   // function getSummaryStatsData(unmappedTownsFilter) {
@@ -311,7 +353,7 @@ function getSummaryStatsData() {
   // var uriTotalWellsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=" + whereDriller + extentFilterMapped + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
   // var uriTotalWells = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=" + whereDriller + extentFilterMapped + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
   var uriTotalWells = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/2/query?where=" + whereDriller + hideUnknownTownWells + extentFilterMapped + "&returnGeometry=false&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22WELL_COUNT%22%2C%22outStatisticFieldName%22%3A%22TotalWells%22%7D%5D&f=pgeojson";
-  console.log(uriTotalWells);
+  // console.log(uriTotalWells);
   // var uriTotalWellsUnmapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/1/query?where=" + whereDriller + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
   // var uriTotalWellsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=LOCATED%3D%27Yes%27%20AND%20" + whereDriller + extentFilterMapped + "&returnGeometry=false&featureEncoding=esriDefault&returnCountOnly=true&returnExceededLimitFeatures=true&f=pgeojson";
   var uriTotalWellsMapped = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/2/query?where=" + whereDriller + hideUnknownTownWells + extentFilterMapped + "&returnGeometry=false&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22LOCATED_YES%22%2C%22outStatisticFieldName%22%3A%22WellsLocated%22%7D%5D&f=pgeojson";
@@ -384,18 +426,6 @@ function getSummaryStatsData() {
   // loadMapTownsLayer(driller.replace(/'/g,"''"));
 }
 
-function loadDataTable () {
-  $('#tableDataTable').DataTable( {
-    "scrollY": "18vh",
-    "scrollCollapse": true,
-    "paging": false,
-    "autoWidth": true,
-    "bFilter": false,
-    "bInfo" : false,
-  });
-  $('#table').DataTable().columns.adjust().draw();
-}
-
 function loadWellDrillers() {
   // var uri = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database/FeatureServer/0/query?where=WELL_DRILLER_COMPANY+LIKE+%27%25%27&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=WELL_DRILLER_COMPANY&returnGeometry=false&featureEncoding=esriDefault&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&datumTransformation=&applyVCSProjection=false&returnIdsOnly=false&returnUniqueIdsOnly=false&returnCountOnly=false&returnExtentOnly=false&returnQueryGeometry=false&returnDistinctValues=false&cacheHint=false&orderByFields=WELL_DRILLER_COMPANY&groupByFieldsForStatistics=WELL_DRILLER_COMPANY&outStatistics=%5B%0D%0A++%7B%0D%0A++++%22statisticType%22%3A+%22count%22%2C%0D%0A++++%22onStatisticField%22%3A+%22WELL_DRILLER_COMPANY%22%0D%0A++%7D%0D%0A%5D&having=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&returnExceededLimitFeatures=true&quantizationParameters=&sqlFormat=none&f=pgeojson&token=";
   var uri = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=WELL_DRILLER_COMPANY+LIKE+%27%25%27&outFields=WELL_DRILLER_COMPANY&returnGeometry=false&orderByFields=WELL_DRILLER_COMPANY&groupByFieldsForStatistics=WELL_DRILLER_COMPANY&outStatistics=%5B%0D%0A%7B%0D%0A%22statisticType%22%3A+%22count%22%2C%0D%0A%22onStatisticField%22%3A%22WELL_DRILLER_COMPANY%22%0D%0A++%7D%0D%0A%5D&f=pgeojson";
@@ -409,7 +439,8 @@ function loadWellDrillers() {
         options[options.length] = new Option(option, option);
       }
       // var driller = document.getElementById("selectDriller").value;
-      getData();
+      // getData();
+      getSummaryStatsData();
     }
   });
 }
@@ -859,6 +890,48 @@ function loadChartDataLayerByClass() {
 // }
 
 
+function reloadTable() {
+  var table = $('#tableDataTable').DataTable();
+  table.clear();
+  table.draw();
+  table.ajax.url("https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=OBJECTID%3C100&outFields=*&returnGeometry=false&f=json").load();
+};
+
+function loadDataTable () {
+  $('#tableDataTable').DataTable( {
+    "ajax": {"url":"https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=OBJECTID%3C100&outFields=*&returnGeometry=false&f=json",
+    "dataSrc": "features"},
+    "columns": [
+					{ data: "attributes.WELLNO" },
+					{ data: "attributes.DRILL_DATE" },
+          { data: "attributes.WELL_LOCATION_TOWN" },
+          { data: "attributes.WELL_LOCATION_ADDRESS" },
+          { data: "attributes.TAX_MAP_NO" },
+          { data: "attributes.TAX_LOT_NO" },
+          { data: "attributes.WELL_USE" },
+          { data: "attributes.WELL_TYPE" },
+          { data: "attributes.WELL_DEVELOPMENT" },
+          { data: "attributes.WELL_DEPTH_FT" },
+          { data: "attributes.WELL_YIELD_GPM" },
+          { data: "attributes.OVERBURDEN_THICKNESS_FT" },
+          { data: "attributes.CASING_LENGTH_FT" },
+          { data: "attributes.WELL_DRILLER_COMPANY" },
+          { data: "attributes.LOCATED" }
+					],
+    // "scrollY": "18vh",
+    "scrollY": "150px",
+    "scrollX": true,
+    // "scrollCollapse": true,
+    "paging": false,
+    // "autoWidth": true,
+    // "bFilter": false,
+    "bInfo" : false,
+    // responsive: true
+  });
+  $('#table').DataTable().columns.adjust().draw();
+}
+
+
 
 $('#selectDataLayer').on('change', function () {
 	// var driller = document.getElementById("selectDriller").value;
@@ -870,7 +943,8 @@ $('#selectDataLayer').on('change', function () {
   // console.log($('#selectDataLayer :selected').text())
   dataLayer = $('#selectDataLayer :selected').val();
   // console.log(dataLayer)
-  getData();
+  // getData();
+  getSummaryStatsData();
   loadMapTownsLayer();
   loadMapWellsLayer();
   // loadChartLocatedByYear();
@@ -885,7 +959,8 @@ $('#selectDriller').on('change', function () {
   // console.log($('#selectDataLayer :selected').val())
   // console.log($('#selectDataLayer :selected').text())
   driller = document.getElementById("selectDriller").value;
-  getData();
+  // getData();
+  getSummaryStatsData();
   loadMapTownsLayer();
   loadMapWellsLayer();
   loadChartLocatedByYear();
@@ -893,7 +968,8 @@ $('#selectDriller').on('change', function () {
 });
 
 $('#checkLimitSpatial').on('change', function () {
-  getData();
+  // getData();
+  getSummaryStatsData();
   loadChartLocatedByYear();
   loadChartDataLayerByClass();
 });
@@ -902,7 +978,6 @@ var dataLayer = $('#selectDataLayer :selected').val();
 var driller = document.getElementById("selectDriller").value;
 
 // map.on('zoomend', function(e) { console.log(map.getZoom()); });
-
 map.on('moveend', function() {
      // console.log(map.getBounds());
      // console.log(map.getZoom());

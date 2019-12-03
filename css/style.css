@@ -72,7 +72,7 @@ div {
     height: 400px;
   }
   #divTable {
-    /* border: thin solid #999; */
+    border: thin solid red;
     height: 200px;
   }
 }
@@ -90,7 +90,7 @@ div {
     padding-top: 56px;
   }
   #divTable {
-    /* border: thin solid #999; */
+    border: thin solid red;
     position: absolute;
     bottom: 0;
     height: 25%;
@@ -109,6 +109,23 @@ div {
 #stats {margin: 25px;}
 #stats p {font-size: .85em}
 .statsValues {font-weight: bold; float: right;}
+
+/* #divGraph1, #divGraph2 {
+  max-height: 150px;
+} */
+/* #divGraph1 {
+  position: absolute;
+  width: 25vw;
+  top: 300;
+}
+
+#divGraph2 {
+  position: absolute;
+  width: 25vw;
+  bottom: 0;
+} */
+
+
 /* #example {
   font-size: 10px;
 } */
@@ -121,18 +138,26 @@ div {
   /* padding: 1rem; */
   /* border: 1px solid #aaa; */
 /* } */
-#example {
+
+/* #tableDataTable {
+  height: 100%;
+} */
+/* #tableDataTable {
+  position: absolute;
+  bottom: 0;
+} */
+/* #tableDataTable {
   table-layout: fixed;
-  width: 100% !important;
+  width: 100% !important; */
   /* height: 25%; */
-}
-#example td,
-#example th{
+/* }
+#tableDataTable td,
+#tableDataTable th{
   width: auto !important;
   white-space: normal;
   text-overflow: ellipsis;
   overflow: hidden;
-}
+} */
 
 th { font-size: 12px; }
 table.dataTable thead th { padding: 2px 5px; }
