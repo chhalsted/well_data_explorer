@@ -107,6 +107,7 @@ div {
 .form-group {margin: 5px;}
 #ExtentGroup {margin: 5px;}
 #stats {margin: 25px;}
+#stats p {font-size: .85em}
 .statsValues {font-weight: bold; float: right;}
 /* #example {
   font-size: 10px;

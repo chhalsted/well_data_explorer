@@ -327,41 +327,6 @@ function getSummaryStatsData() {
   // loadMapTownsLayer(driller.replace(/'/g,"''"));
 }
 
-$('#selectDriller').on('change', function () {
-	// var driller = document.getElementById("selectDriller").value;
-  // getDataTotalWellsMapped(driller);
-  // getDataTotalWellsUnMapped(driller);
-  // getDataCurrentYearWells(driller);
-  // console.log(document.getElementById("selectDataLayer").value)
-  // console.log($('#selectDataLayer :selected').val())
-  // console.log($('#selectDataLayer :selected').text())
-  getData();
-  loadMapTownsLayer();
-  loadMapWellsLayer();
-  loadChartLocatedByYear();
-  loadChartDataLayerByClass();
-});
-$('#selectDataLayer').on('change', function () {
-	// var driller = document.getElementById("selectDriller").value;
-  // getDataTotalWellsMapped(driller);
-  // getDataTotalWellsUnMapped(driller);
-  // getDataCurrentYearWells(driller);
-  // console.log(document.getElementById("selectDataLayer").value)
-  // console.log($('#selectDataLayer :selected').val())
-  // console.log($('#selectDataLayer :selected').text())
-  getData();
-  loadMapTownsLayer();
-  loadMapWellsLayer();
-  loadChartLocatedByYear();
-  loadChartDataLayerByClass();
-});
-$('#checkLimitSpatial').on('change', function () {
-  getData();
-  loadChartLocatedByYear();
-  loadChartDataLayerByClass();
-});
-
-
 function loadDataTable () {
   $('#tableDataTable').DataTable( {
     "scrollY": "18vh",
@@ -432,6 +397,106 @@ function loadWellDrillers() {
 //
 // $(document).ready(jQueryAjax);
 
+var ctx = document.getElementById('chartLocatedByYear').getContext('2d');
+var objChartLocatedByYear = new Chart(ctx, {
+  type: 'bar',
+  data: {
+      labels: [],
+      datasets: [{
+          label: 'Unlocated',
+          data: [],
+          backgroundColor: 'rgba(0, 112, 192, 0.75)',
+          borderColor: 'rgba(0, 112, 192, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Located',
+          data: [],
+          backgroundColor: 'rgba(146, 208, 80, 0.75)',
+          borderColor: 'rgba(146, 208, 80, 1)',
+          borderWidth: 1
+        }
+      ]
+    },
+  options: {
+    title: {
+      display: true,
+      text: 'Total Wells Drilled by Year'
+    },
+    scales: {
+      xAxes: [{ stacked: true }],
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
+        },
+        stacked: true
+      }]
+    }
+  }
+})
+// console.log(objChartLocatedByYear.data.labels);
+// objChartLocatedByYear.data.labels.push('l3','l4');
+// objChartLocatedByYear.data.datasets[0].data.push(2,3)
+// objChartLocatedByYear.data.datasets[1].data.push(1,1)
+function addData(chart, label, data1, data2) {
+    chart.data.labels.push(label);
+    chart.data.datasets[0].data.push(data1);
+    chart.data.datasets[1].data.push(data2);
+    chart.update();
+}
+// addData(objChartLocatedByYear,'l3',4,4);
+// addData(objChartLocatedByYear,'l4',4,4);
+// addData(objChartLocatedByYear,'l5',4,4);
+// console.log(objChartLocatedByYear.data.datasets[0].data.length)
+function removeData(chart) {
+  // console.log(chart.data.datasets[0])
+  var l = chart.data.datasets[0].data.length;
+  for (var i=0; i < l; i++) {
+    chart.data.labels.pop();
+    chart.data.datasets[0].data.pop();
+    chart.data.datasets[1].data.pop();
+  }
+  // console.log(chart.data.datasets[0])
+}
+// removeData(objChartLocatedByYear);
+
+
+// function removeData(chart) {
+//     chart.data.labels.pop();
+//     console.log(chart.data.datasets[0])
+//     console.log(chart.data.datasets[1])
+//     chart.data.datasets[0].data.pop();
+//     chart.data.datasets[1].data.pop();
+//     console.log(chart.data.datasets[0])
+//     console.log(chart.data.datasets[1])
+//     chart.update();
+// }
+
+
+// function addData(chart, label, data) {
+//     chart.data.labels.push(label);
+//     console.log(chart.data.labels);
+//     chart.data.datasets.forEach((dataset) => {
+//         dataset.data.push(data);
+//     });
+//     chart.update();
+// }
+//
+// function removeData(chart) {
+//   console.log(chart.data.datasets[0])
+//   console.log(chart.data.datasets[1])
+//   chart.data.labels.pop();
+//   chart.data.datasets.forEach((dataset) => {
+//     console.log(dataset.data)
+//     dataset.data.pop();
+//   });
+//   chart.update();
+//   console.log(chart.data.datasets[0])
+//   console.log(chart.data.datasets[1])
+// }
+// removeData(objChartLocatedByYear);
+
+
 function loadChartLocatedByYear() {
   var dataLayer = $('#selectDataLayer :selected').val();
   var driller = document.getElementById("selectDriller").value;
@@ -447,74 +512,145 @@ function loadChartLocatedByYear() {
 
   //need to change LOCATED field to 2 fields LOCATED_YES and LOCATED_NO (1 and 0) and then can do one AJAX call to get all statsValues
 
-  var uriYearsLabels = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=DRILL_DATE_YEAR%20IS%20NOT%20NULL%20AND%20" + whereDriller + extentFilterMapped + "&outFields=DRILL_DATE_YEAR&returnGeometry=false&orderByFields=DRILL_DATE_YEAR&groupByFieldsForStatistics=DRILL_DATE_YEAR&outStatistics=%5B%0D%0A%7B%0D%0A%22statisticType%22%3A%22count%22%2C%0D%0A%22onStatisticField%22%3A%22WELLNO%22%2C%0D%0A%22outStatisticFieldName%22%3A%22WELLS%22%0D%0A%7D%0D%0A%5D&f=pgeojson"
-  // console.log(uriYearsLabels);
-  var uriLocatedByYear = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=DRILL_DATE_YEAR%20IS%20NOT%20NULL%20AND%20LOCATED%3D%27Yes%27%20AND%20" + whereDriller + extentFilterMapped + "&outFields=DRILL_DATE_YEAR&returnGeometry=false&orderByFields=DRILL_DATE_YEAR&groupByFieldsForStatistics=DRILL_DATE_YEAR&outStatistics=%5B%0D%0A%7B%0D%0A%22statisticType%22%3A%22count%22%2C%0D%0A%22onStatisticField%22%3A%22WELLNO%22%2C%0D%0A%22outStatisticFieldName%22%3A%22WellsLocated%22%0D%0A%7D%0D%0A%5D&f=pgeojson"
-  console.log(uriLocatedByYear);
-  var uriUnlocatedByYear = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=DRILL_DATE_YEAR%20IS%20NOT%20NULL%20AND%20LOCATED%3D%27No%27%20AND%20" + whereDriller + extentFilterMapped + "&outFields=DRILL_DATE_YEAR&returnGeometry=false&orderByFields=DRILL_DATE_YEAR&groupByFieldsForStatistics=DRILL_DATE_YEAR&outStatistics=%5B%0D%0A%7B%0D%0A%22statisticType%22%3A%22count%22%2C%0D%0A%22onStatisticField%22%3A%22WELLNO%22%2C%0D%0A%22outStatisticFieldName%22%3A%22WellsUnlocated%22%0D%0A%7D%0D%0A%5D&f=pgeojson"
-  console.log(uriUnlocatedByYear);
+  // var uriYearsLabels = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=DRILL_DATE_YEAR%20IS%20NOT%20NULL%20AND%20" + whereDriller + extentFilterMapped + "&outFields=DRILL_DATE_YEAR&returnGeometry=false&orderByFields=DRILL_DATE_YEAR&groupByFieldsForStatistics=DRILL_DATE_YEAR&outStatistics=%5B%0D%0A%7B%0D%0A%22statisticType%22%3A%22count%22%2C%0D%0A%22onStatisticField%22%3A%22WELLNO%22%2C%0D%0A%22outStatisticFieldName%22%3A%22WELLS%22%0D%0A%7D%0D%0A%5D&f=pgeojson"
+  // // console.log(uriYearsLabels);
+  // var uriLocatedByYear = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=DRILL_DATE_YEAR%20IS%20NOT%20NULL%20AND%20LOCATED%3D%27Yes%27%20AND%20" + whereDriller + extentFilterMapped + "&outFields=DRILL_DATE_YEAR&returnGeometry=false&orderByFields=DRILL_DATE_YEAR&groupByFieldsForStatistics=DRILL_DATE_YEAR&outStatistics=%5B%0D%0A%7B%0D%0A%22statisticType%22%3A%22count%22%2C%0D%0A%22onStatisticField%22%3A%22WELLNO%22%2C%0D%0A%22outStatisticFieldName%22%3A%22WellsLocated%22%0D%0A%7D%0D%0A%5D&f=pgeojson"
+  // console.log(uriLocatedByYear);
+  // var uriUnlocatedByYear = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=DRILL_DATE_YEAR%20IS%20NOT%20NULL%20AND%20LOCATED%3D%27No%27%20AND%20" + whereDriller + extentFilterMapped + "&outFields=DRILL_DATE_YEAR&returnGeometry=false&orderByFields=DRILL_DATE_YEAR&groupByFieldsForStatistics=DRILL_DATE_YEAR&outStatistics=%5B%0D%0A%7B%0D%0A%22statisticType%22%3A%22count%22%2C%0D%0A%22onStatisticField%22%3A%22WELLNO%22%2C%0D%0A%22outStatisticFieldName%22%3A%22WellsUnlocated%22%0D%0A%7D%0D%0A%5D&f=pgeojson"
+  // console.log(uriUnlocatedByYear);
 
-  var a1 = $.ajax(uriYearsLabels, {dataType: "json",success: function(response){ } }),
-      a2 = $.ajax(uriLocatedByYear, {dataType: "json",success: function(response){ } }),
-      a3 = $.ajax(uriUnlocatedByYear, {dataType: "json",success: function(response){ } })
+  var uriChartLocatedByYear = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=DRILL_DATE_YEAR%20IS%20NOT%20NULL%20AND%20" + whereDriller + extentFilterMapped + "&outFields=DRILL_DATE_YEAR&returnGeometry=false&orderByFields=DRILL_DATE_YEAR&groupByFieldsForStatistics=DRILL_DATE_YEAR&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22LOCATED_YES%22%2C%22outStatisticFieldName%22%3A%22WellsLocated%22%7D%2C%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22LOCATED_NO%22%2C%22outStatisticFieldName%22%3A%22WellsUnlocated%22%7D%5D&f=pgeojson"
+  // console.log(uriChartLocatedByYear);
 
-  $.when(a1, a2, a3).done(function(r1, r2, r3) {
-    // console.log(r1[0]);
-    console.log(r1[0].features.length);
-    var arrayYearsLabels = [];
-    for (var i=0; i < r1[0].features.length; i++) {
-      arrayYearsLabels.push(r1[0].features[i].properties.DRILL_DATE_YEAR);
-    }
-    // console.log(arrayYearsLabels)
-
-    console.log(r2[0]);
-    console.log(r2[0].features.length);
-    var arrayLocatedByYear = [];
-    for (var i=0; i < r2[0].features.length; i++) {
-      arrayLocatedByYear.push(r2[0].features[i].properties.WellsLocated);
-    }
-    console.log(arrayLocatedByYear)
-
-    var ctx = document.getElementById('chartLocatedByYear').getContext('2d');
-    var myChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        // labels: ['2005', '2006', '2007', '2008','2009'],
-        labels: arrayYearsLabels,
-        datasets: [{
-            label: 'Unlocated',
-            data: [12,5,9,12,13],
-            backgroundColor: 'rgba(0, 112, 192, 0.75)',
-            borderColor: 'rgba(0, 112, 192, 1)',
-            borderWidth: 1
-          },
-          {
-            label: 'Located',
-            // data: [9,8,2,10,8],
-            data: arrayLocatedByYear,
-            backgroundColor: 'rgba(146, 208, 80, 0.75)',
-            borderColor: 'rgba(146, 208, 80, 1)',
-            borderWidth: 1
-          }
-        ]
-      },
-      options: {
-        title: {
-          display: true,
-          text: 'Total Wells Drilled by Year'
-        },
-        scales: {
-          xAxes: [{ stacked: true }],
-          yAxes: [{
-            ticks: {
-              beginAtZero: true
-            },
-            stacked: true
-          }]
-        }
+  $.ajax(uriChartLocatedByYear, {
+    dataType: "json",
+    success: function(response){
+      // console.log(response);
+      // console.log(response.features.length);
+      removeData(objChartLocatedByYear);
+      var arrayYearsLabels = [], arrayYearLocated = [], arrayYearUnlocated = [];
+      for (var i=0; i < response.features.length; i++) {
+        // arrayYearsLabels.push(response.features[i].properties.DRILL_DATE_YEAR);
+        // arrayYearLocated.push(response.features[i].properties.WellsLocated);
+        // arrayYearUnlocated.push(response.features[i].properties.WellsUnlocated);
+        addData(objChartLocatedByYear, response.features[i].properties.DRILL_DATE_YEAR, response.features[i].properties.WellsUnlocated, response.features[i].properties.WellsLocated);
+        // addData(objChartLocatedByYear, response.features[i].properties.DRILL_DATE_YEAR, response.features[i].properties.WellsLocated);
       }
-    });
-  });
+      // addData(objChartLocatedByYear, arrayYearsLabels, arrayYearLocated);
+
+
+      // var ctx = document.getElementById('chartLocatedByYear').getContext('2d');
+      // if (objChartLocatedByYear) {
+      //   console.log('clear');
+      //   objChartLocatedByYear.clear();
+      // };
+      // var objChartLocatedByYear = new Chart(ctx, {
+      //   type: 'bar',
+      //   data: {
+      //     // labels: ['2005', '2006', '2007', '2008','2009'],
+      //     labels: arrayYearsLabels,
+      //     datasets: [{
+      //         label: 'Unlocated',
+      //         // data: [12,5,9,12,13],
+      //         data: arrayYearUnlocated,
+      //         backgroundColor: 'rgba(0, 112, 192, 0.75)',
+      //         borderColor: 'rgba(0, 112, 192, 1)',
+      //         borderWidth: 1
+      //       },
+      //       {
+      //         label: 'Located',
+      //         // data: [9,8,2,10,8],
+      //         data: arrayYearLocated,
+      //         backgroundColor: 'rgba(146, 208, 80, 0.75)',
+      //         borderColor: 'rgba(146, 208, 80, 1)',
+      //         borderWidth: 1
+      //       }
+      //     ]
+      //   },
+      //   options: {
+      //     title: {
+      //       display: true,
+      //       text: 'Total Wells Drilled by Year'
+      //     },
+      //     scales: {
+      //       xAxes: [{ stacked: true }],
+      //       yAxes: [{
+      //         ticks: {
+      //           beginAtZero: true
+      //         },
+      //         stacked: true
+      //       }]
+      //     }
+      //   }
+      // })
+    }
+  })
+
+
+
+
+  // var a1 = $.ajax(uriYearsLabels, {dataType: "json",success: function(response){ } }),
+  //     a2 = $.ajax(uriLocatedByYear, {dataType: "json",success: function(response){ } }),
+  //     a3 = $.ajax(uriUnlocatedByYear, {dataType: "json",success: function(response){ } })
+  //
+  // $.when(a1, a2, a3).done(function(r1, r2, r3) {
+  //   // console.log(r1[0]);
+  //   console.log(r1[0].features.length);
+  //   var arrayYearsLabels = [];
+  //   for (var i=0; i < r1[0].features.length; i++) {
+  //     arrayYearsLabels.push(r1[0].features[i].properties.DRILL_DATE_YEAR);
+  //   }
+  //   // console.log(arrayYearsLabels)
+  //
+  //   console.log(r2[0]);
+  //   console.log(r2[0].features.length);
+  //   var arrayLocatedByYear = [];
+  //   for (var i=0; i < r2[0].features.length; i++) {
+  //     arrayLocatedByYear.push(r2[0].features[i].properties.WellsLocated);
+  //   }
+  //   console.log(arrayLocatedByYear)
+  //
+    // var ctx = document.getElementById('chartLocatedByYear').getContext('2d');
+    // var myChart = new Chart(ctx, {
+    //   type: 'bar',
+    //   data: {
+    //     // labels: ['2005', '2006', '2007', '2008','2009'],
+    //     labels: arrayYearsLabels,
+    //     datasets: [{
+    //         label: 'Unlocated',
+    //         // data: [12,5,9,12,13],
+    //         data: arrayYearUnlocated,
+    //         backgroundColor: 'rgba(0, 112, 192, 0.75)',
+    //         borderColor: 'rgba(0, 112, 192, 1)',
+    //         borderWidth: 1
+    //       },
+    //       {
+    //         label: 'Located',
+    //         // data: [9,8,2,10,8],
+    //         data: arrayYearLocated,
+    //         backgroundColor: 'rgba(146, 208, 80, 0.75)',
+    //         borderColor: 'rgba(146, 208, 80, 1)',
+    //         borderWidth: 1
+    //       }
+    //     ]
+    //   },
+    //   options: {
+    //     title: {
+    //       display: true,
+    //       text: 'Total Wells Drilled by Year'
+    //     },
+    //     scales: {
+    //       xAxes: [{ stacked: true }],
+    //       yAxes: [{
+    //         ticks: {
+    //           beginAtZero: true
+    //         },
+    //         stacked: true
+    //       }]
+    //     }
+    //   }
+    // });
+  // });
 
 
 };
@@ -562,6 +698,41 @@ function loadChartDataLayerByClass() {
     }
   });
 }
+
+$('#selectDataLayer').on('change', function () {
+	// var driller = document.getElementById("selectDriller").value;
+  // getDataTotalWellsMapped(driller);
+  // getDataTotalWellsUnMapped(driller);
+  // getDataCurrentYearWells(driller);
+  // console.log(document.getElementById("selectDataLayer").value)
+  // console.log($('#selectDataLayer :selected').val())
+  // console.log($('#selectDataLayer :selected').text())
+  getData();
+  loadMapTownsLayer();
+  loadMapWellsLayer();
+  // loadChartLocatedByYear();
+  loadChartDataLayerByClass();
+});
+$('#selectDriller').on('change', function () {
+	// var driller = document.getElementById("selectDriller").value;
+  // getDataTotalWellsMapped(driller);
+  // getDataTotalWellsUnMapped(driller);
+  // getDataCurrentYearWells(driller);
+  // console.log(document.getElementById("selectDataLayer").value)
+  // console.log($('#selectDataLayer :selected').val())
+  // console.log($('#selectDataLayer :selected').text())
+  getData();
+  loadMapTownsLayer();
+  loadMapWellsLayer();
+  loadChartLocatedByYear();
+  loadChartDataLayerByClass();
+});
+
+$('#checkLimitSpatial').on('change', function () {
+  getData();
+  loadChartLocatedByYear();
+  loadChartDataLayerByClass();
+});
 
 $(document).ready(function() {
   loadWellDrillers();
