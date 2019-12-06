@@ -918,8 +918,8 @@ function loadDataTable () {
           { data: "attributes.WELL_DRILLER_COMPANY" },
           { data: "attributes.LOCATED" }
 					],
-    // "scrollY": "18vh",
-    "scrollY": "150px",
+    "scrollY": "18vh",
+    // "scrollY": "150px",
     "scrollX": true,
     // "scrollCollapse": true,
     "paging": false,

@@ -1,5 +1,10 @@
 /* stylesheet - Christian Halsted 2019 */
 
+* {
+  /* So 100% means 100% */
+  box-sizing: border-box;
+}
+
 body {
     /* padding-top: 59px; */
     font-family: 'Noto Sans';
@@ -65,7 +70,7 @@ div {
   #divSidebar {
     /* height: 500px; */
     padding-top: 56px;
-    /* border: thin solid #999; */
+    border: thin solid blue;
   }
   #divMap {
     /* border: thin solid #999; */
@@ -73,13 +78,28 @@ div {
   }
   #divTable {
     border: thin solid red;
-    height: 200px;
+    height: 220px;
+    width: 100%;
+  }
+  #tableDataTable_wrapper {
+    padding: 0px;
+    /* height: 200px; */
+    width: 100%;
+    position:absolute;
+    bottom: 0;
+    right: 0;
+  }
+  #containerMapTable {
+    padding: 0px;
+  }
+  #divMap, #divTable {
+    margin: 0px;
   }
 }
 @media (min-width: 768px) {
   .navbar-custom .navbar-brand {font-size: 22px;}
   .navbar-custom {font-size: 16px;}
-  #divSidebar {height: 100vh;}
+  #divSidebar {height: 100vh; overflow-y: auto;}
   #divSidebar, #divMapTable {padding-top: 56px;}
   #divMap {
     /* border: thin solid #999; */
@@ -93,8 +113,17 @@ div {
     border: thin solid red;
     position: absolute;
     bottom: 0;
-    height: 25%;
+    /* height: 25%; */
+    height: 220px;
     width: 100%;
+  }
+  #tableDataTable_wrapper {
+    padding: 0px;
+    /* height: 200px; */
+    width: 100%;
+    position:absolute;
+    bottom: 0;
+    right: 0;
   }
 }
 
@@ -102,17 +131,25 @@ div {
    height: 100%;
    width: 100%;
    display: inline-block;
+   width: 100%;
 }
 
 .form-group {margin: 5px;}
 #ExtentGroup {margin: 5px;}
-#stats {margin: 25px;}
+#stats {margin: 2px 10px 0px 10px;}
 #stats p {font-size: .85em}
 .statsValues {font-weight: bold; float: right;}
 
-/* #divGraph1, #divGraph2 {
-  max-height: 150px;
+/* #divGraph1, #divGraph2, #chartLocatedByYear, #chartDataLayerByClass {
+  height: calc(100%-100px);
 } */
+
+/* #divGraph1, #divGraph2, #chartLocatedByYear, #chartDataLayerByClass {
+  max-height: 275px;
+}
+#chartLocatedByYear, #chartDataLayerByClass {
+  max-width: 350px; */
+}
 /* #divGraph1 {
   position: absolute;
   width: 25vw;
