@@ -104,7 +104,7 @@ div {
   #divMap {
     /* border: thin solid #999; */
     position: absolute;
-    height: 75%;
+    height: 72.5%;
     width: 100%;
     margin-top: -56px;
     padding-top: 56px;
@@ -132,6 +132,10 @@ div {
    width: 100%;
    display: inline-block;
    width: 100%;
+}
+
+.toolTipTable {
+  font-family: 'Noto Sans';
 }
 
 .form-group {margin: 5px;}
@@ -196,6 +200,7 @@ div {
   overflow: hidden;
 } */
 
+thead th { white-space: nowrap; }
 th { font-size: 12px; }
 table.dataTable thead th { padding: 2px 5px; }
 td {
@@ -204,4 +209,34 @@ td {
 table.dataTable tbody td {
   padding: 2px 5px;
   font-size: 11px;
+}
+.dataTables_info { font-size: 11px; }
+.dataTables_filter label { font-size: 12px; }
+.dataTables_wrapper .dataTables_filter  {float: left;}
+.dataTables_filter input { width: 200px; }
+
+#legendTitle {
+  font-size: 12px;
+  font-weight: bold;
+  font-family: 'Noto Sans';
+}
+.legend {
+    line-height: 18px;
+    color: #555;
+}
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.9;
+}
+.info {
+    padding: 6px 8px;
+    font-size: 11px;
+    font-family: 'Noto Sans';
+    background: white;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    border-radius: 5px;
 }
