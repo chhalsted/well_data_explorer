@@ -6,6 +6,22 @@
 $('#body').css('min-height', screen.height);
 var map = L.map('map').setView([45.375, -69.0], 7);
 
+//create the geocoding control and add it to the map
+var searchControl = L.esri.Geocoding.geosearch({
+  position: 'topleft',
+  useMapBounds: false,
+  searchBounds: L.latLngBounds(L.latLng(42.5, -71.2), L.latLng(47.6, -66.7)),
+  title: 'Location search',
+  placeholder: 'Search location',
+}).addTo(map);
+var results = L.layerGroup().addTo(map);
+searchControl.on("results", function(data) {
+  results.clearLayers();
+  for (var i = data.results.length - 1; i >= 0; i--) {
+    results.addLayer(L.marker(data.results[i].latlng));
+  }
+});
+
 //create base map layers
 //Open Street Map
 var baseLayerOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -25,6 +41,44 @@ var baseLayerMBGrayscale = L.tileLayer(mbUrl, {id: 'mapbox.light', token: apitok
 var baseLayerEsri = L.esri.basemapLayer('Imagery');
 var baseLayerEsriLabels = L.esri.basemapLayer('ImageryLabels');
 
+map.createPane('parcels');
+map.getPane('parcels').style.zIndex = 352;
+var baseLayerEsriTransLabels = L.esri.basemapLayer('ImageryTransportation',{minZoom: 15});
+var layerParcels = L.esri.featureLayer({
+  url: 'https://gis.maine.gov/arcgis/rest/services/PlanningCadastre/Maine_Parcels_Organized_Towns/MapServer/0',
+  pane: 'parcels',
+  minZoom: 12,
+  style: {
+    color: '#fcb96d',
+    weight: 1,
+    fillOpacity: 0.1,
+  },
+//}).addTo(map);
+});
+layerParcels.bindPopup(function (layer) {
+  return L.Util.template('<p><b>Town</b>: {TOWN}<br><b>Parcel ID</b>: {MAP_BK_LOT}</p>', layer.feature.properties);
+});
+
+var layerParcelsUT = L.esri.featureLayer({
+  url: 'https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/Maine_Unorganized_Territory_Parcels/FeatureServer/0',
+  pane: 'parcels',
+  minZoom: 12
+}); //.addTo(map);
+
+var layerTowns = L.esri.featureLayer({
+  url: 'https://gis.maine.gov/arcgis/rest/services/Boundaries/Maine_Boundaries_Town_Townships/FeatureServer/3',
+  pane: 'towns',
+  minZoom: 12,
+  style: {
+    color: '#ff0000',
+    weight: 1,
+    fillOpacity: 0.01,
+  },
+}); //.addTo(map);
+layerTowns.bindPopup(function (layer) {
+  return L.Util.template('<p><b>Town</b>: {TOWN}</p>', layer.feature.properties);
+});
+
 //add layer control for base map and reference geoJSON layers
 L.control.layers(
   {
@@ -34,9 +88,9 @@ L.control.layers(
     "Esri Imagery":baseLayerEsri,
   },
   {
-    // "Road Names":layerRoadNamess,
-    // "Parcels":layerParcels,
-    // "Parcesl UT":layerParcelsUT
+    "Road Names":baseLayerEsriTransLabels,
+    "Parcels":layerParcels,
+    "Parcesl UT":layerParcelsUT
   },
   {
     sortLayers: false,
@@ -127,10 +181,10 @@ function loadMapTownsLayer() {
         '<table class="toolTipTable">' +
         '<tr><td><u>Town Summary:</u></td><td>' + feature.properties.WELL_LOCATION_TOWN + '</td>' +
         '<tr><td>Total Wells:</td><td>' + feature.properties.WELL_COUNT + '</td>' +
-        '<tr><td>Average Well Depth (ft):</td><td>' + Math.round(feature.properties.WELL_DEPTH_FT,0)   + '</td>' +
-        '<tr><td>Average Well Yield (gpm):</td><td>' + Math.round(feature.properties.WELL_YIELD_GPM,0)   + '</td>' +
-        '<tr><td>Average Bedrock Depth (ft):</td><td>' + Math.round(feature.properties.BEDROCK_DEPTH_FT,0)   + '</td>' +
-        '<tr><td>Average Casing Length (ft):</td><td>' + Math.round(feature.properties.CASING_LENGTH_FT,0) +
+        '<tr><td>Average Well Depth (ft):</td><td>' + feature.properties.WELL_DEPTH_FT   + '</td>' +
+        '<tr><td>Average Well Yield (gpm):</td><td>' + feature.properties.WELL_YIELD_GPM   + '</td>' +
+        '<tr><td>Average Bedrock Depth (ft):</td><td>' + feature.properties.BEDROCK_DEPTH_FT   + '</td>' +
+        '<tr><td>Average Casing Length (ft):</td><td>' + feature.properties.CASING_LENGTH_FT +
         '</table>',
         {sticky: true});
     }
@@ -174,14 +228,15 @@ function loadMapWellsLayer() {
       return layer;
     },
     onEachFeature: function (feature, layer) {
-      var fDate = new Date(feature.properties.DRILL_DATE);
+      // var fDate = new Date(feature.properties.DRILL_DATE);
       layer.bindTooltip(
         '<u>Well Data:</u><br>' +
         '<table class="toolTipTable">' +
         '<tr><td>Well Number:</td><td>' + feature.properties.WELLNO + '</td>' +
         '<tr><td>Town:</td><td>' + feature.properties.WELL_LOCATION_TOWN + '</td>' +
         '<tr><td>Well Address:</td><td>' + feature.properties.WELL_LOCATION_ADDRESS + '</td>' +
-        '<tr><td>Drill Date:</td><td>' + getFormattedDate(fDate) + '</td>' +
+        '<tr><td>Drill Date:</td><td>' + feature.properties.DRILL_DATE_FORMATTED + '</td>' +
+        // '<tr><td>Drill Date:</td><td>' + getFormattedDate(fDate) + '</td>' +
         '<tr><td>Driller:</td><td>' + feature.properties.WELL_DRILLER_COMPANY + '</td>' +
         '<tr><td>Well Depth (ft):</td><td>' + feature.properties.WELL_DEPTH_FT + '</td>' +
         '<tr><td>Well Yield (gpm):</td><td>' + feature.properties.WELL_YIELD_MODIFIER + ' ' + feature.properties.WELL_YIELD_GPM + '</td>' +
@@ -504,7 +559,7 @@ function tableURI( serviceNumber ) {
   }
   var extentFilterMapped = '';
   var hideUnknownTownWells = '';
-  if ( $('#checkLimitSpatial').is(':checked') ) {
+  if ( $('#checkLimitSpatial').is(':checked') || serviceNumber == 1) {
     extentFilterMapped = "&inSR=4326&outSR=4326&geometryType=esriGeometryEnvelope&geometry={" + map.getBounds()._southWest.lng + "," + map.getBounds()._southWest.lat + "," + map.getBounds()._northEast.lng + "," + map.getBounds()._northEast.lat + "}";
     hideUnknownTownWells = "%20AND%20WELL_LOCATION_TOWN%3C%3E%27UNKNOWN%27"
   }
@@ -633,14 +688,14 @@ function loadLegend() {
 }
 
 // function to take a date returned as UNIX-standard and convert to m/d/yyyy format
-function getFormattedDate(date) {
-  var year = date.getFullYear();
-  var month = (1 + date.getMonth()).toString();
-  // month = month.length > 1 ? month : '0' + month;
-  var day = date.getDate().toString();
-  // day = day.length > 1 ? day : '0' + day;
-  return month + '/' + day + '/' + year;
-}
+// function getFormattedDate(date) {
+//   var year = date.getFullYear();
+//   var month = (1 + date.getMonth()).toString();
+//   // month = month.length > 1 ? month : '0' + month;
+//   var day = date.getDate().toString();
+//   // day = day.length > 1 ? day : '0' + day;
+//   return month + '/' + day + '/' + year;
+// }
 
 function setTableVisibility(table, visible) {
   var x = document.getElementById(table);
