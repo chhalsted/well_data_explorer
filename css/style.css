@@ -35,6 +35,9 @@ container-fluid {padding: 0px;}
 #divSidebar, #divMapTable, #divMap, #divTable {
   padding: 0px;
 }
+#tableDataTableTownSummary #tableDataTableWells {
+  width: 100%;
+}
 
 /* #divMapTable, #divSidebar {
   height: 100vh;
@@ -81,7 +84,22 @@ div {
     height: 220px;
     width: 100%;
   }
-  #tableDataTable_wrapper {
+  /* #tableDataTable_wrapper {
+    padding: 0px;
+    width: 100%;
+    position:absolute;
+    bottom: 0;
+    right: 0;
+  } */
+  #tableDataTableTownSummary_wrapper {
+    padding: 0px;
+    /* height: 200px; */
+    width: 100%;
+    position:absolute;
+    bottom: 0;
+    right: 0;
+  }
+  #tableDataTableWells_wrapper {
     padding: 0px;
     /* height: 200px; */
     width: 100%;
@@ -117,7 +135,23 @@ div {
     height: 220px;
     width: 100%;
   }
-  #tableDataTable_wrapper {
+  /* #tableDataTable_wrapper {
+    padding: 0px; */
+    /* height: 200px; */
+    /* width: 100%;
+    position:absolute;
+    bottom: 0;
+    right: 0;
+  } */
+  #tableDataTableTownSummary_wrapper {
+    padding: 0px;
+    /* height: 200px; */
+    width: 100%;
+    position:absolute;
+    bottom: 0;
+    right: 0;
+  }
+  #tableDataTableWells_wrapper {
     padding: 0px;
     /* height: 200px; */
     width: 100%;
