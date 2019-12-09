@@ -86,13 +86,13 @@ var colorRampSolid = [
 var dataLayerClass = {
   'WELL_DEPTH_FT':'WELL_DEPTH_CLASS',
   'WELL_YIELD_GPM':'WELL_YIELD_CLASS',
-  'OVERBURDEN_THICKNESS_FT':'WELL_OVERBURDEN_THICKNESS_CLASS',
+  'BEDROCK_DEPTH_FT':'BEDROCK_DEPTH_CLASS',
   'CASING_LENGTH_FT':'CASING_LENGTH_CLASS'
 }
 var dataLayerClassLabels = {
   'WELL_DEPTH_FT':["0 - 50", "50.1 - 100", "100.1 - 150", "150.1 - 200", "200.1 - 300", "300.1 - 400", "400.1 - 500", "500.1 - 1000", "1000+"],
   'WELL_YIELD_GPM':["0 - 2", "2.1 - 4", "4.1 - 6", "6.1 - 10", "10.1 - 15", "15.1 - 30", "30.1 - 60", "60.1 - 100", "100+"],
-  'OVERBURDEN_THICKNESS_FT':["0 - 5", "5.1 - 10", "10.1 - 20", "20.1 - 30", "30.1 - 40", "40.1 - 50", "50.1 - 75", "75.1 - 100", "100+"],
+  'BEDROCK_DEPTH_FT':["0 - 5", "5.1 - 10", "10.1 - 20", "20.1 - 30", "30.1 - 40", "40.1 - 50", "50.1 - 75", "75.1 - 100", "100+"],
   'CASING_LENGTH_FT':["0 - 10", "10.1 - 20", "20.1 - 30", "30.1 - 50", "50.1 - 75", "75.1 - 100", "100.1 - 250", "250.1 - 500", "500+"]
 }
 
@@ -129,7 +129,7 @@ function loadMapTownsLayer() {
         '<tr><td>Total Wells:</td><td>' + feature.properties.WELL_COUNT + '</td>' +
         '<tr><td>Average Well Depth (ft):</td><td>' + Math.round(feature.properties.WELL_DEPTH_FT,0)   + '</td>' +
         '<tr><td>Average Well Yield (gpm):</td><td>' + Math.round(feature.properties.WELL_YIELD_GPM,0)   + '</td>' +
-        '<tr><td>Average Bedrock Depth (ft):</td><td>' + Math.round(feature.properties.OVERBURDEN_THICKNESS_FT,0)   + '</td>' +
+        '<tr><td>Average Bedrock Depth (ft):</td><td>' + Math.round(feature.properties.BEDROCK_DEPTH_FT,0)   + '</td>' +
         '<tr><td>Average Casing Length (ft):</td><td>' + Math.round(feature.properties.CASING_LENGTH_FT,0) +
         '</table>',
         {sticky: true});
@@ -185,7 +185,7 @@ function loadMapWellsLayer() {
         '<tr><td>Driller:</td><td>' + feature.properties.WELL_DRILLER_COMPANY + '</td>' +
         '<tr><td>Well Depth (ft):</td><td>' + feature.properties.WELL_DEPTH_FT + '</td>' +
         '<tr><td>Well Yield (gpm):</td><td>' + feature.properties.WELL_YIELD_MODIFIER + ' ' + feature.properties.WELL_YIELD_GPM + '</td>' +
-        '<tr><td>Bedrock Depth (ft):</td><td>' + feature.properties.OVERBURDEN_THICKNESS_FT + '</td>' +
+        '<tr><td>Bedrock Depth (ft):</td><td>' + feature.properties.BEDROCK_DEPTH_FT + '</td>' +
         '<tr><td>Casing Length (ft):</td><td>' + feature.properties.CASING_LENGTH_FT + '</td>' +
         '<tr><td>Well Use:</td><td>' + feature.properties.WELL_USE + '</td>' +
         '<tr><td>Well Type:</td><td>' + feature.properties.WELL_TYPE + '</td>' +
@@ -512,7 +512,7 @@ function tableURI( serviceNumber ) {
   // var uri = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=" + dataLayerClass[dataLayer] + "%3C%3E%27%27%20AND%20" + whereDriller + hideUnknownTownWells + extentFilterMapped + "&returnGeometry=false&orderByFields=ListOrder&groupByFieldsForStatistics=" + dataLayerClass[dataLayer] + "&outStatistics=%5B%7B%22statisticType%22%3A%20%22count%22%2C%22onStatisticField%22%3A%20%22WELLNO%22%2C%22outStatisticFieldName%22%3A%20%22WELLS%22%7D%2C%7B%22statisticType%22%3A%20%22avg%22%2C%22onStatisticField%22%3A%20%22" + dataLayer + "%22%2C%22outStatisticFieldName%22%3A%20%22ListOrder%22%7D%5D&f=pgeojson"
   // var uri = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/2/query?where=OBJECTID%3E0&outFields=*&returnGeometry=false&f=pjson";
   var uri = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/" + serviceNumber + "/query?where=" + whereDriller + hideUnknownTownWells + extentFilterMapped + "&outFields=*&returnGeometry=false&f=pjson"
-  console.log(uri)
+  // console.log(uri)
   return uri
 }
 
@@ -520,7 +520,6 @@ function reloadDataTableTownSummary() {
   var table = $('#tableDataTableTownSummary').DataTable();
   table.clear();
   table.draw();
-  // table.ajax.url("https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/3/query?where=OBJECTID%3E0&outFields=*&returnGeometry=false&returnExceededLimitFeatures=false&f=pjson").load();
   table.ajax.url(tableURI(2)).load();
 };
 
@@ -528,7 +527,6 @@ function loadDataTableTownSummary () {
   // loadTableHeaders();
   $('#tableDataTableTownSummary').DataTable( {
     destroy: true,
-    // "ajax": {"url":"https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/2/query?where=OBJECTID%3E0&outFields=*&returnGeometry=false&f=pjson",
     "ajax": {"url": tableURI(2),
     "dataSrc": "features"},
     "columns": [
@@ -542,9 +540,9 @@ function loadDataTableTownSummary () {
       { data: "attributes.MIN_WELL_YIELD_GPM" },
       { data: "attributes.AVG_WELL_YIELD_GPM" },
       { data: "attributes.MAX_WELL_YIELD_GPM" },
-      { data: "attributes.MIN_OVERBURDEN_THICKNESS_FT" },
-      { data: "attributes.AVG_OVERBURDEN_THICKNESS_FT" },
-      { data: "attributes.MAX_OVERBURDEN_THICKNESS_FT" },
+      { data: "attributes.MIN_BEDROCK_DEPTH_FT" },
+      { data: "attributes.AVG_BEDROCK_DEPTH_FT" },
+      { data: "attributes.MAX_BEDROCK_DEPTH_FT" },
       { data: "attributes.MIN_CASING_LENGTH_FT" },
       { data: "attributes.AVG_CASING_LENGTH_FT" },
       { data: "attributes.MAX_CASING_LENGTH_FT" }
@@ -560,7 +558,8 @@ function loadDataTableTownSummary () {
     // responsive: true
     language: {
       search: "_INPUT_",
-      searchPlaceholder: "Search records"
+      searchPlaceholder: "Search records",
+      "emptyTable": "Loading...",
     },
     // "dom": '<"wrapper"><lfi<t>p>',
     // buttons: [
@@ -574,19 +573,20 @@ function reloadDataTableWells() {
   var table = $('#tableDataTableWells').DataTable();
   table.clear();
   table.draw();
-  // table.ajax.url("https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/3/query?where=OBJECTID%3E0&outFields=*&returnGeometry=false&returnExceededLimitFeatures=false&f=pjson").load();
   table.ajax.url(tableURI(1)).load();
 };
 
 function loadDataTableWells () {
   $('#tableDataTableWells').DataTable( {
     destroy: true,
-    // "ajax": {"url":"https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=OBJECTID%3E0&outFields=*&returnGeometry=false&f=pjson",
-    "ajax": {"url": tableURI(1),
+    // since well table isn't visible on document load return an empty ajax call
+    "ajax": {"url":"https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=OBJECTID%3C0&outFields=*&returnGeometry=false&f=pjson",
+    // "ajax": {"url": tableURI(1),
     "dataSrc": "features"},
     "columns": [
 					{ data: "attributes.WELLNO" },
-					{ data: "attributes.DRILL_DATE" },
+          { data: "attributes.WELL_DRILLER_COMPANY" },
+					{ data: "attributes.DRILL_DATE_FORMATTED" },
           { data: "attributes.WELL_LOCATION_TOWN" },
           { data: "attributes.WELL_LOCATION_ADDRESS" },
           { data: "attributes.TAX_MAP_NO" },
@@ -596,9 +596,8 @@ function loadDataTableWells () {
           { data: "attributes.WELL_DEVELOPMENT" },
           { data: "attributes.WELL_DEPTH_FT" },
           { data: "attributes.WELL_YIELD_GPM" },
-          { data: "attributes.OVERBURDEN_THICKNESS_FT" },
+          { data: "attributes.BEDROCK_DEPTH_FT" },
           { data: "attributes.CASING_LENGTH_FT" },
-          { data: "attributes.WELL_DRILLER_COMPANY" },
           { data: "attributes.LOCATED" }
 					],
     "scrollY": "18vh",
@@ -606,7 +605,8 @@ function loadDataTableWells () {
     "paging": false,
     language: {
       search: "_INPUT_",
-      searchPlaceholder: "Search records"
+      searchPlaceholder: "Search records",
+      "emptyTable": "Loading...",
     }
   });
   $('#tableDataTableWells').DataTable().columns.adjust().draw();
@@ -702,6 +702,8 @@ map.on('moveend', function() {
        loadSummaryStatsData();
        loadChartLocatedByYear();
        loadChartDataLayerByClass();
+       reloadDataTableTownSummary();
+       // reloadDataTableWells();
      }
      // if ((mapZoomBefore == 12 && mapZoom == 13) || (mapZoomBefore == 13 && mapZoom == 12)) {
      //  console.log('reload table');
@@ -713,6 +715,7 @@ map.on('moveend', function() {
       if ( mapZoom >= 13 ){
         // replaceTableHeaders("Wells");
         // loadDataTableWells();
+        reloadDataTableWells();
         setTableVisibility('tableDataTableWells_wrapper', true);
         setTableVisibility('tableDataTableTownSummary_wrapper', false);
       } else {

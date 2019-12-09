@@ -73,14 +73,14 @@ div {
   #divSidebar {
     /* height: 500px; */
     padding-top: 56px;
-    border: thin solid blue;
+    /* border: thin solid blue; */
   }
   #divMap {
     /* border: thin solid #999; */
     height: 400px;
   }
   #divTable {
-    border: thin solid red;
+    /* border: thin solid red; */
     height: 220px;
     width: 100%;
   }
@@ -117,8 +117,16 @@ div {
 @media (min-width: 768px) {
   .navbar-custom .navbar-brand {font-size: 22px;}
   .navbar-custom {font-size: 16px;}
-  #divSidebar {height: 100vh; overflow-y: auto;}
-  #divSidebar, #divMapTable {padding-top: 56px;}
+  #divSidebar {
+    height: 100vh;
+    overflow-y: auto;  /*adds vertical scroll bar*/
+  }
+  #divSidebar, #divMapTable {
+    padding-top: 56px;
+  }
+  /* #divMapTable {
+    border: thin solid black;
+  } */
   #divMap {
     /* border: thin solid #999; */
     position: absolute;
@@ -128,7 +136,7 @@ div {
     padding-top: 56px;
   }
   #divTable {
-    border: thin solid red;
+    /* border: thin solid red; */
     position: absolute;
     bottom: 0;
     /* height: 25%; */
