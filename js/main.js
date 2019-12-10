@@ -475,82 +475,6 @@ function loadChartDataLayerByClass() {
 }
 
 
-
-// var tableFields = {
-//   "Town_Summary":["WELLNO",
-//                   "DRILL_DATE",
-//                   "WELL_LOCATION_TOWN",
-//                   "WELL_LOCATION_ADDRESS",
-//                   "TAX_MAP_NO",
-//                   "TAX_LOT_NO",
-//                   "WELL_USE",
-//                   "WELL_TYPE",
-//                   "WELL_DEVELOPMENT",
-//                   "WELL_DEPTH_FT",
-//                   "WELL_YIELD_GPM",
-//                   "OVERBURDEN_THICKNESS_FT",
-//                   "CASING_LENGTH_FT",
-//                   "WELL_DRILLER_COMPANY",
-//                   "LOCATED"],
-//   "Wells": ["WELL_LOCATION_TOWN",
-//             "WELL_DRILLER_COMPANY",
-//             "LOCATED_YES",
-//             "LOCATED_NO",
-//             "MIN_WELL_DEPTH_FT",
-//             "AVG_WELL_DEPTH_FT",
-//             "MAX_WELL_DEPTH_FT"]
-// }
-
-// function reloadTable() {
-//   var table = $('#tableDataTable').DataTable();
-//   table.clear();
-//   table.draw();
-//   var dataTableColumns = [];
-//   // if ( map.getZoom() >= 13 ) {
-//   //   console.log('wells');
-//     for (var i = 0; i < tableFields["Wells"].length; i++) {
-//       $('#tableDataTable > thead > tr').append("<th>" + tableFields["Wells"][i] + "</th>");
-//       // dataTableColumns.push('{ data: "attributes.' + tableFields["Wells"][i] + '" }')
-//     }
-//   // } else {
-//   //   console.log('town summary');
-//   //   for (var i = 0; i < tableFields["Town_Summary"].length; i++) {
-//   //     $('#tableDataTable > thead > tr').append("<th>" + tableFields["Town_Summary"][i] + "</th>");
-//   //     dataTableColumns.push('{ data: "attributes.' + tableFields["Town_Summary"][i] + '" }')
-//   //   }
-//   // }
-//
-//   dataTableColumns = [{ data: "attributes.WELLNO" },
-//   { data: "attributes.DRILL_DATE" },
-//   { data: "attributes.WELL_LOCATION_TOWN" },
-//   { data: "attributes.WELL_LOCATION_ADDRESS" },
-//   { data: "attributes.TAX_MAP_NO" },
-//   { data: "attributes.TAX_LOT_NO" },
-//   { data: "attributes.WELL_USE" },
-//   { data: "attributes.WELL_TYPE" },
-//   { data: "attributes.WELL_DEVELOPMENT" },
-//   { data: "attributes.WELL_DEPTH_FT" },
-//   { data: "attributes.WELL_YIELD_GPM" },
-//   { data: "attributes.OVERBURDEN_THICKNESS_FT" },
-//   { data: "attributes.CASING_LENGTH_FT" },
-//   { data: "attributes.WELL_DRILLER_COMPANY" },
-//   { data: "attributes.LOCATED" }];
-//   console.log(dataTableColumns);
-//     table.columns =dataTableColumns;
-//   console.log(table.ajax.dataSrc);
-//   table.ajax[1] = "features";
-//   table.ajax.url("https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/3/query?where=OBJECTID%3E0&outFields=*&returnGeometry=false&returnExceededLimitFeatures=false&f=pjson").load();
-//
-//
-// };
-
-// function replaceTableHeaders ( arrayFields ) {
-//   $("#tableDataTable > thead").find("tr:gt(0)").remove();
-//   for (var i = 0; i < tableFields[arrayFields].length; i++) {
-//     $('#tableDataTable > thead > tr').append("<th>" + tableFields["Wells"][i] + "</th>");
-//   }
-// }
-
 function tableURI( serviceNumber ) {
   if (driller == "ALL" && serviceNumber == 1) {
     var whereDriller = encodeURIComponent("(WELL_DRILLER_COMPANY LIKE '%' OR WELL_DRILLER_COMPANY IS NULL)");
@@ -564,8 +488,6 @@ function tableURI( serviceNumber ) {
     hideUnknownTownWells = "%20AND%20WELL_LOCATION_TOWN%3C%3E%27UNKNOWN%27"
   }
 
-  // var uri = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/1/query?where=" + dataLayerClass[dataLayer] + "%3C%3E%27%27%20AND%20" + whereDriller + hideUnknownTownWells + extentFilterMapped + "&returnGeometry=false&orderByFields=ListOrder&groupByFieldsForStatistics=" + dataLayerClass[dataLayer] + "&outStatistics=%5B%7B%22statisticType%22%3A%20%22count%22%2C%22onStatisticField%22%3A%20%22WELLNO%22%2C%22outStatisticFieldName%22%3A%20%22WELLS%22%7D%2C%7B%22statisticType%22%3A%20%22avg%22%2C%22onStatisticField%22%3A%20%22" + dataLayer + "%22%2C%22outStatisticFieldName%22%3A%20%22ListOrder%22%7D%5D&f=pgeojson"
-  // var uri = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/2/query?where=OBJECTID%3E0&outFields=*&returnGeometry=false&f=pjson";
   var uri = "https://services1.arcgis.com/RbMX0mRVOFNTdLzd/ArcGIS/rest/services/MGS_Wells_Database_Dashboard/FeatureServer/" + serviceNumber + "/query?where=" + whereDriller + hideUnknownTownWells + extentFilterMapped + "&outFields=*&returnGeometry=false&f=pjson"
   // console.log(uri)
   return uri
@@ -579,7 +501,6 @@ function reloadDataTableTownSummary() {
 };
 
 function loadDataTableTownSummary () {
-  // loadTableHeaders();
   $('#tableDataTableTownSummary').DataTable( {
     destroy: true,
     "ajax": {"url": tableURI(2),
@@ -744,42 +665,24 @@ $('#checkLimitSpatial').on('change', function () {
 var dataLayer = $('#selectDataLayer :selected').val();
 var driller = $('#selectDriller :selected').val();   // var driller = document.getElementById("selectDriller").value;
 var mapZoom = map.getZoom();
-// var mapZoomBefore = 0;
 
 // fires after the map is panned or zoomed, if
 map.on('moveend', function() {
-     // console.log(map.getBounds());
-     // console.log(map.getZoom());
-     // mapZoomBefore = mapZoom;
      mapZoom = map.getZoom();
-     // console.log(mapZoomBefore + ' - ' + mapZoom);
      if ( $('#checkLimitSpatial').is(':checked') ) {
        loadSummaryStatsData();
        loadChartLocatedByYear();
        loadChartDataLayerByClass();
        reloadDataTableTownSummary();
-       // reloadDataTableWells();
      }
-     // if ((mapZoomBefore == 12 && mapZoom == 13) || (mapZoomBefore == 13 && mapZoom == 12)) {
-     //  console.log('reload table');
-      // reloadTable();
-      // var table = $('#tableDataTable').DataTable();
-      // table.destroy();
-      // table.clear();
-      // table.draw();
       if ( mapZoom >= 13 ){
-        // replaceTableHeaders("Wells");
-        // loadDataTableWells();
         reloadDataTableWells();
         setTableVisibility('tableDataTableWells_wrapper', true);
         setTableVisibility('tableDataTableTownSummary_wrapper', false);
       } else {
-        // replaceTableHeaders("Town_Summary");
-        // loadDataTableTownSummary();
         setTableVisibility('tableDataTableTownSummary_wrapper', true);
         setTableVisibility('tableDataTableWells_wrapper', false);
       }
-    // }
 });
 
 // initially load well drillers drop down, map, graphs, attribute table
@@ -792,27 +695,8 @@ $(document).ready(function() {
   loadLegend();
   loadDataTableTownSummary();
   loadDataTableWells();
-  // reloadTable();
-  // hideTable('tableDataTableTownSummary_wrapper');
   setTableVisibility('tableDataTableWells_wrapper', false);
-  // setTableVisibility('tableDataTableTownSummary_wrapper', false);
 } );
-
-
-
-// function openCity(evt, cityName) {
-//   var i, tabcontent, tablinks;
-//   tabcontent = document.getElementsByClassName("tabcontent");
-//   for (i = 0; i < tabcontent.length; i++) {
-//     tabcontent[i].style.display = "none";
-//   }
-//   tablinks = document.getElementsByClassName("tablinks");
-//   for (i = 0; i < tablinks.length; i++) {
-//     tablinks[i].className = tablinks[i].className.replace(" active", "");
-//   }
-//   document.getElementById(cityName).style.display = "block";
-//   evt.currentTarget.className += " active";
-// }
 
 
 // //test loading dates

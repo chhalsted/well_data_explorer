@@ -31,8 +31,8 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav ml-auto">
           <ul class="nav navbar-nav">
-            <li><a href="#help">Help</a></li>
-            <li><a href="#about">About</a></li>
+            <li><a href="help.html">Help</a></li>
+            <li><a href="about.html">About</a></li>
             <!-- <li><a href="#contact">Contact</a></li> -->
           </ul>
         </ul>
@@ -58,8 +58,6 @@
         <div class="form-group">
           <div id="divSelectDriller">
             <select id="selectDriller" title="Select well driller" class="form-control">
-                <!-- <option selected disabled>Select well driller</option>
-                <option>ALL</option> -->
                 <option selected>ALL</option>
     					</select>
           </div>
@@ -74,9 +72,6 @@
         </div>
         <div id="stats">
           <h5>Summary Data:</h5>
-          <!-- <h5>Summary Data:<span class="statsValues invisible" id="strTotalWellsUnmapped"></span></h5> -->
-          <!-- <p class="invisible" id="strTotalWellsUnmapped"></p> -->
-
           <p>Total Wells Reported:  <span class="statsValues" id="strTotalWells"></span><br>
           Wells Reported Current Year: <span class="statsValues" id="strTotalWellsCurrentYear"></span><br>
           Total Wells Mapped: <span class="statsValues" id="strTotalWellsMapped"></span><br>
@@ -93,29 +88,12 @@
             <canvas id="chartDataLayerByClass" height="250"></canvas>
           </div>
         </div>
-        <!-- <canvas id="myChart" width="200" height="200"></canvas> -->
       </div>
 
       <div class="col-md-7 col-lg-8 col-xl-9" id="divMapTable">
         <div class="container-fluid" id="containerMapTable">
           <div class="row col-12" id="divMap">
             <div id="map"></div>
-
-            <!-- <div class="tab">
-              <button class="tablinks" onclick="openCity(event, 'SummaryTowns')">SummaryTowns</button>
-              <button class="tablinks" onclick="openCity(event, 'Wells')">Wells</button>
-            </div>
-
-            <div id="SummaryTowns" class="tabcontent">
-              <h3>SummaryTowns</h3>
-              <p>SummaryTowns is the capital city of England.</p>
-            </div>
-
-            <div id="Wells" class="tabcontent">
-              <h3>Wells</h3>
-              <p>Wells is the capital of France.</p>
-            </div> -->
-
           </div>
           <div class="row col-12" id="divTable">
             <div class="container-fluid" id="containerTable">
@@ -172,27 +150,22 @@
 </div>
 
   <!--put your external script links here-->
+  <!-- for bootstrap 4.3 -->
+  <script type="text/javascript" src="lib/jquery-3.4.1.js"></script>
+  <script type="text/javascript" src="lib/bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
+  <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script> -->
-  <!-- <script type="text/javascript" src="lib/jquery-3.4.1.js"></script> -->
-  <!-- <script type="text/javascript" src="lib/jquery-1.11.3.js"></script> -->
-	<!-- <script type="text/javascript" src="lib/bootstrap.min.js"></script> -->
+  <!-- end bootstrap 4.3 -->
 
-<!-- for bootstrap 4.3 -->
-<script type="text/javascript" src="lib/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="lib/bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
-<!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-<!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script> -->
-<!-- end bootstrap 4.3 -->
-
-<script type="text/javascript" src="lib/leaflet/leaflet-src.js"></script>
-<script type="text/javascript" src="lib/esri-leaflet-v2.3.2/dist/esri-leaflet.js"></script>
-<script type="text/javascript" src="lib/esri-leaflet-geocoder/esri-leaflet-geocoder.js"></script>
-<!-- <script src="https://unpkg.com/esri-leaflet@2.3.0/dist/esri-leaflet.js" integrity="sha512-1tScwpjXwwnm6tTva0l0/ZgM3rYNbdyMj5q6RSQMbNX6EUMhYDE3pMRGZaT41zHEvLoWEK7qFEJmZDOoDMU7/Q==" crossorigin=""></script> -->
-<script type="text/javascript" src="lib/Chart.min.js"></script>
-<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script> -->
-<script type="text/javascript" charset="utf8" src="lib/DataTables/datatables.js"></script>
-<!-- <script type="text/javascript" charset="utf8" src="lib/DataTables/Responsive-2.2.3/js/dataTables.responsive.min.js"></script> -->
-<script type="text/javascript" src="js/main.js"></script>
+  <script type="text/javascript" src="lib/leaflet/leaflet-src.js"></script>
+  <script type="text/javascript" src="lib/esri-leaflet-v2.3.2/dist/esri-leaflet.js"></script>
+  <script type="text/javascript" src="lib/esri-leaflet-geocoder/esri-leaflet-geocoder.js"></script>
+  <!-- <script src="https://unpkg.com/esri-leaflet@2.3.0/dist/esri-leaflet.js" integrity="sha512-1tScwpjXwwnm6tTva0l0/ZgM3rYNbdyMj5q6RSQMbNX6EUMhYDE3pMRGZaT41zHEvLoWEK7qFEJmZDOoDMU7/Q==" crossorigin=""></script> -->
+  <script type="text/javascript" src="lib/Chart.min.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script> -->
+  <script type="text/javascript" charset="utf8" src="lib/DataTables/datatables.js"></script>
+  <!-- <script type="text/javascript" charset="utf8" src="lib/DataTables/Responsive-2.2.3/js/dataTables.responsive.min.js"></script> -->
+  <script type="text/javascript" src="js/main.js"></script>
 </body>
 </html>
